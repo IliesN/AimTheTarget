@@ -20,13 +20,14 @@ image_decor_accueil = pygame.image.load("decors/decor_accueil.jpg")
 
 image_effet_bouton = pygame.image.load("effet_bouton.png")
 DIMENSION_EFFET_BOUTON = 175
+Y_EFFET_BT_SUPP = 10
 
 image_bouton_jouer = pygame.image.load("bouton_jouer.png")
 bouton_jouer_rect = image_bouton_jouer.get_rect()
 DIMENSION_BOUTON = 150
-PLACEMENT_HAUTEUR_SUPP_BT = 35
+Y_BT_SUPP = 35
 bouton_jouer_rect.x = LARGEUR_FENETRE / 2 - DIMENSION_BOUTON / 2
-bouton_jouer_rect.y = HAUTEUR_FENETRE / 2 + PLACEMENT_HAUTEUR_SUPP_BT
+bouton_jouer_rect.y = HAUTEUR_FENETRE / 2 + Y_BT_SUPP
 
 # image_boulet_canon = pygame.image.load("decors/boulet_canon.png")
 # image_roue_canon = pygame.image.load("decors/roue_canon.png")
@@ -63,11 +64,11 @@ while en_execution:
         fenetre.blit(image_bouton_jouer, bouton_jouer_rect)
 
         if LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2 < souris_x < LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON /\
-                2 + DIMENSION_EFFET_BOUTON and HAUTEUR_FENETRE / 2 + PLACEMENT_HAUTEUR_SUPP_BT < souris_y <\
-                HAUTEUR_FENETRE / 2 + PLACEMENT_HAUTEUR_SUPP_BT + DIMENSION_EFFET_BOUTON:
+                2 + DIMENSION_EFFET_BOUTON and HAUTEUR_FENETRE / 2 + Y_BT_SUPP < souris_y < HAUTEUR_FENETRE / 2 +\
+                Y_BT_SUPP + DIMENSION_EFFET_BOUTON:
             fenetre.blit(image_effet_bouton,
                          (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE / 2 +
-                          PLACEMENT_HAUTEUR_SUPP_BT - 10))
+                          Y_BT_SUPP - Y_EFFET_BT_SUPP))
         else:
             fenetre.blit(image_effet_bouton, (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE))
 
