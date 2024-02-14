@@ -39,7 +39,7 @@ image_fond_terre = pygame.image.load("decors/decor_type_terre.jpg")
 
 # Modifications des paramètres principaux de la fenêtre
 pygame.display.set_caption("Astral Shooter")
-fenetre = pygame.display.set_mode((LARGEUR_FENETRE, HAUTEUR_FENETRE))
+fenetre_jeu = pygame.display.set_mode((LARGEUR_FENETRE, HAUTEUR_FENETRE))
 pygame.display.set_icon(icone_jeu)
 
 
@@ -57,20 +57,20 @@ while en_execution:
     souris_x, souris_y = pygame.mouse.get_pos()
 
     if en_jeu:
-        actualisation(fenetre)
+        actualisation(fenetre_jeu)
 
     else:
-        fenetre.blit(image_decor_accueil, (0, 0))
-        fenetre.blit(image_bouton_jouer, bouton_jouer_rect)
+        fenetre_jeu.blit(image_decor_accueil, (0, 0))
+        fenetre_jeu.blit(image_bouton_jouer, bouton_jouer_rect)
 
         if LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2 < souris_x < LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON /\
                 2 + DIMENSION_EFFET_BOUTON and HAUTEUR_FENETRE / 2 + Y_BT_SUPP < souris_y < HAUTEUR_FENETRE / 2 +\
                 Y_BT_SUPP + DIMENSION_EFFET_BOUTON:
-            fenetre.blit(image_effet_bouton,
-                         (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE / 2 +
-                          Y_BT_SUPP - Y_EFFET_BT_SUPP))
+            fenetre_jeu.blit(image_effet_bouton,
+                             (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE / 2 +
+                              Y_BT_SUPP - Y_EFFET_BT_SUPP))
         else:
-            fenetre.blit(image_effet_bouton, (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE))
+            fenetre_jeu.blit(image_effet_bouton, (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE))
 
     pygame.display.flip()
 
