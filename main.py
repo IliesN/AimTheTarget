@@ -29,7 +29,7 @@ Y_BT_SUPP = 35
 bouton_jouer_rect.x = LARGEUR_FENETRE / 2 - DIMENSION_BOUTON / 2
 bouton_jouer_rect.y = HAUTEUR_FENETRE / 2 + Y_BT_SUPP
 
-# image_boulet_canon = pygame.image.load("decors/boulet_canon.png")
+image_fond_terre = pygame.image.load("decors/decor_type_terre.jpg")
 # image_roue_canon = pygame.image.load("decors/roue_canon.png")
 # image_canon_sans_roue = pygame.image.load("decors/canon_sans_roue.png")
 # image_personnage = pygame.image.load("decors/personnage.png")
@@ -48,7 +48,7 @@ en_jeu = False
 
 
 def actualisation(fenetre):
-    print("he")
+    fenetre.blit(image_fond_terre, (0, 0))
 
 
 
@@ -83,5 +83,4 @@ while en_execution:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if bouton_jouer_rect.collidepoint(event.pos):
                 en_jeu = True
-
 
