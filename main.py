@@ -11,8 +11,14 @@ icone_jeu = pygame.image.load("icone_jeu.png")
 
 image_meteorite = pygame.image.load("elements_decor/meteorite.png")
 image_boulet_canon = pygame.image.load("elements_decor/boulet_canon.png")
+
 image_roue_canon = pygame.image.load("elements_decor/roue_canon.png")
+HAUTEUR_ROUE_CANON = HAUTEUR_FENETRE - 130
+
 image_canon_sans_roue = pygame.image.load("elements_decor/canon_sans_roue.png")
+LARGEUR_CANON = LARGEUR_FENETRE / 8
+HAUTEUR_CANON = HAUTEUR_FENETRE - 155
+
 image_personnage = pygame.image.load("elements_decor/personnage.png")
 image_monstre_1 = pygame.image.load("elements_decor/monstre_1.png")
 
@@ -47,24 +53,39 @@ en_execution = True
 en_jeu = False
 
 
-def actualisation(fenetre):
-    fenetre.blit(image_fond_terre, (0, 0))
+def pivoter_canon(position_x, position_y, rect_canon):
+
+    image_canon_pivote = pygame.transform.rotate(image_canon_sans_roue, 100)
+    canon_rect_pivote = image_canon_pivote.get_rect(center=rect_canon.center)
+
+    fenetre_jeu.blit(image_canon_pivote, canon_rect_pivote)
+    fenetre_jeu.blit(image_roue_canon, (LARGEUR_FENETRE / 6, HAUTEUR_ROUE_CANON))
+
+
+def actualisation(position_x, position_y):
+    fenetre_jeu.blit(image_fond_terre, (0, 0))
+
+    rect_canon = image_canon_sans_roue.get_rect()
+    rect_canon.x = LARGEUR_CANON
+    rect_canon.y = HAUTEUR_CANON
+
+    pivoter_canon(position_x, position_y, rect_canon)
 
 
 
 while en_execution:
 
-    souris_x, souris_y = pygame.mouse.get_pos()
+    position_souris_x, position_souris_y = pygame.mouse.get_pos()
 
     if en_jeu:
-        actualisation(fenetre_jeu)
+        actualisation(position_souris_x, position_souris_y)
 
     else:
         fenetre_jeu.blit(image_decor_accueil, (0, 0))
         fenetre_jeu.blit(image_bouton_jouer, bouton_jouer_rect)
 
-        if LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2 < souris_x < LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON /\
-                2 + DIMENSION_EFFET_BOUTON and HAUTEUR_FENETRE / 2 + Y_BT_SUPP < souris_y < HAUTEUR_FENETRE / 2 +\
+        if LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2 < position_souris_x < LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON /\
+                2 + DIMENSION_EFFET_BOUTON and HAUTEUR_FENETRE / 2 + Y_BT_SUPP < position_souris_y < HAUTEUR_FENETRE / 2 +\
                 Y_BT_SUPP + DIMENSION_EFFET_BOUTON:
             fenetre_jeu.blit(image_effet_bouton,
                              (LARGEUR_FENETRE / 2 - DIMENSION_EFFET_BOUTON / 2, HAUTEUR_FENETRE / 2 +
