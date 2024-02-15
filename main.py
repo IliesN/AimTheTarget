@@ -1,4 +1,5 @@
 import pygame
+import math
 
 
 pygame.init()
@@ -18,6 +19,11 @@ HAUTEUR_ROUE_CANON = HAUTEUR_FENETRE - 130
 image_canon_sans_roue = pygame.image.load("elements_decor/canon_sans_roue.png")
 LARGEUR_CANON = LARGEUR_FENETRE / 8
 HAUTEUR_CANON = HAUTEUR_FENETRE - 155
+rect_canon = image_canon_sans_roue.get_rect()
+rect_canon.x = LARGEUR_CANON
+rect_canon.y = HAUTEUR_CANON
+CENTRE_CANON = rect_canon.center
+
 
 image_personnage = pygame.image.load("elements_decor/personnage.png")
 image_monstre_1 = pygame.image.load("elements_decor/monstre_1.png")
@@ -48,15 +54,27 @@ pygame.display.set_caption("Astral Shooter")
 fenetre_jeu = pygame.display.set_mode((LARGEUR_FENETRE, HAUTEUR_FENETRE))
 pygame.display.set_icon(icone_jeu)
 
-
 en_execution = True
 en_jeu = False
 
 
-def pivoter_canon(position_x, position_y, rect_canon):
+def pivoter_canon(position_x, position_y):
+    limite_pos_x = 30
+    limite_pos_y = 30
 
-    image_canon_pivote = pygame.transform.rotate(image_canon_sans_roue, 100)
-    canon_rect_pivote = image_canon_pivote.get_rect(center=rect_canon.center)
+    if not(position_x >= CENTRE_CANON[0] + limite_pos_x and position_y <= CENTRE_CANON[1] - limite_pos_y):
+        if position_x < CENTRE_CANON[0] + limite_pos_x:
+            position_x = CENTRE_CANON[0] + limite_pos_x
+        elif position_y > CENTRE_CANON[1] - limite_pos_y:
+            position_y = CENTRE_CANON[1] - limite_pos_y
+
+    longueur_adjacent = position_x - CENTRE_CANON[0]
+    longueur_oppose = CENTRE_CANON[1] - position_y
+    longueur_hypotenuse = math.sqrt(longueur_adjacent ** 2 + longueur_oppose ** 2)
+
+    image_canon_pivote = pygame.transform.rotate(image_canon_sans_roue,
+                                                 math.degrees(math.acos(longueur_adjacent / longueur_hypotenuse)))
+    canon_rect_pivote = image_canon_pivote.get_rect(center=CENTRE_CANON)
 
     fenetre_jeu.blit(image_canon_pivote, canon_rect_pivote)
     fenetre_jeu.blit(image_roue_canon, (LARGEUR_FENETRE / 6, HAUTEUR_ROUE_CANON))
@@ -65,11 +83,7 @@ def pivoter_canon(position_x, position_y, rect_canon):
 def actualisation(position_x, position_y):
     fenetre_jeu.blit(image_fond_terre, (0, 0))
 
-    rect_canon = image_canon_sans_roue.get_rect()
-    rect_canon.x = LARGEUR_CANON
-    rect_canon.y = HAUTEUR_CANON
-
-    pivoter_canon(position_x, position_y, rect_canon)
+    pivoter_canon(position_x, position_y)
 
 
 
@@ -104,4 +118,3 @@ while en_execution:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if bouton_jouer_rect.collidepoint(event.pos):
                 en_jeu = True
-
