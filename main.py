@@ -58,6 +58,11 @@ en_execution = True
 en_jeu = False
 
 
+def duree_clic():
+    pass
+
+
+
 def pivoter_canon(position_x, position_y):
     limite_pos_x = 30
     limite_pos_y = 30
@@ -85,6 +90,7 @@ def actualisation(position_x, position_y):
 
     pivoter_canon(position_x, position_y)
 
+    duree_clic()
 
 
 while en_execution:
