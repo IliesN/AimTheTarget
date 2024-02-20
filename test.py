@@ -26,6 +26,8 @@ angle_rotation = -c.ANGLE_ROTATION_INITAL
 temps_debut_explosion = 0
 coordonnees_explosion = 0, 0
 
+nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+
 en_tir = False
 en_animation_tir = False
 
@@ -36,6 +38,45 @@ tir_possible = False
 
 en_execution = True
 en_jeu = False
+
+
+def game_over():
+    global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
+    global temps_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu
+    global tir_possible, en_jeu
+
+    intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
+
+    position_x_boulet = 0
+    position_y_boulet = 0
+
+    position_x_tir = 0
+    position_y_tir = 0
+    vitesse_initiale_tir = 0
+
+    vitesse_initiale = c.VITESSE_BOULET_MIN
+
+    angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+    temps_debut_explosion = 0
+    coordonnees_explosion = 0, 0
+
+    nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+
+    en_tir = False
+    en_animation_tir = False
+
+    en_explosion = False
+
+    nombre_clic_en_jeu = 0
+    tir_possible = False
+
+    en_jeu = False
+
+
+def en_collision_boulet(boulet_canon_rect):
+    return boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT)\
+        or boulet_canon_rect.colliderect(c.PERSONNAGE_RECT)
 
 
 def fonction_trajectoire(x, alpha, v0, g):
@@ -61,29 +102,18 @@ def pivoter_fleche_jauge():
 
     fenetre_jeu.blit(image_fleche_pivote, fleche_pivote_rect)
 
-
-def coordonnees_tir(position_x, position_y):
-    global tir_possible
-
-    limite_pos_x = 40
-    limite_pos_y = 150
-
-    if position_x < CENTRE_CANON[0] + limite_pos_x:
-        position_x = CENTRE_CANON[0] + limite_pos_x
-    if position_y > CENTRE_CANON[1] - limite_pos_y:
-        position_y = CENTRE_CANON[1] - limite_pos_y
-
-    return position_x, position_y
-
-
 def angle_tir_canon(position_x, position_y):
-    position_x, position_y = coordonnees_tir(position_x, position_y)
-
     longueur_adjacent = position_x - CENTRE_CANON[0]
     longueur_oppose = CENTRE_CANON[1] - position_y
     longueur_hypotenuse = math.sqrt(longueur_adjacent ** 2 + longueur_oppose ** 2)
 
-    return math.acos(longueur_adjacent / longueur_hypotenuse)
+    angle_tir = math.acos(longueur_adjacent / longueur_hypotenuse)
+    if angle_tir < 0.2:
+        angle_tir = 0.2
+    elif angle_tir > 1.4:
+        angle_tir = 1.4
+
+    return angle_tir
 
 
 def affichage_accueil(position_x, position_y):
@@ -107,6 +137,7 @@ def actualisation_jeu(position_x, position_y):
     global coordonnees_explosion
     global vitesse_initiale, vitesse_initiale_tir
     global angle_rotation
+    global nombre_vies_actuel
 
     fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
 
@@ -114,6 +145,17 @@ def actualisation_jeu(position_x, position_y):
                                                  math.degrees(angle_tir_canon(position_x, position_y)))
 
     canon_pivote_rect = image_canon_pivote.get_rect(center=CENTRE_CANON)
+
+    somme_decalage_coeur = c.POS_X_DERNIER_COEUR
+    for indice_coeur_noir in range(c.NOMBRE_VIES_INITIAL - nombre_vies_actuel):
+        fenetre_jeu.blit(c.IMAGE_COEUR_NOIR, (somme_decalage_coeur, c.POS_Y_COEUR))
+        somme_decalage_coeur -= c.DECALAGE_COEUR
+
+    for indice_coeur_rouge in range(nombre_vies_actuel):
+        fenetre_jeu.blit(c.IMAGE_COEUR_ROUGE, (somme_decalage_coeur, c.POS_Y_COEUR))
+        somme_decalage_coeur -= c.DECALAGE_COEUR
+
+    fenetre_jeu.blit(c.IMAGE_PERSONNAGE, c.PERSONNAGE_RECT)
 
     fenetre_jeu.blit(image_canon_pivote, canon_pivote_rect)
     fenetre_jeu.blit(c.IMAGE_ROUE_CANON, (c.POS_X_ROUE_CANON, c.POS_Y_ROUE_CANON))
@@ -133,8 +175,6 @@ def actualisation_jeu(position_x, position_y):
 
         En résumé, la normalisation du vecteur OM est importante car elle nous donne une direction à suivre à partir du point O vers le point M. En multipliant cette direction par le rayon du cercle, nous obtenons un vecteur qui pointe vers le point d'intersection entre la droite OM et le cercle.
         """
-
-        position_x, position_y = coordonnees_tir(position_x, position_y)
 
         # Vectorisation pour déterminer l'emplacement de l'apparition du boulet pour l'animation de tir
 
@@ -160,10 +200,16 @@ def actualisation_jeu(position_x, position_y):
         boulet_canon_rect.x, boulet_canon_rect.y = \
             position_x_boulet + pos_x_centre_bouche_canon - 30, pos_y_centre_bouche_canon - position_y_boulet
 
-        if not (boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT)):
+        if not en_collision_boulet(boulet_canon_rect):
             fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
 
         else:
+            if boulet_canon_rect.colliderect(c.PERSONNAGE_RECT):
+                nombre_vies_actuel -= 1
+
+                if nombre_vies_actuel == 0:
+                    game_over()
+
             position_x_boulet = 0
             position_y_boulet = 0
 
@@ -224,7 +270,7 @@ while en_execution:
                 en_animation_tir = True
                 en_tir = False
 
-                position_x_tir, position_y_tir = coordonnees_tir(position_souris_x, position_souris_y)
+                position_x_tir, position_y_tir = position_souris_x, position_souris_y
                 vitesse_initiale_tir = vitesse_initiale * c.MULTIPLICATEUR_VITESSE
 
             else:
