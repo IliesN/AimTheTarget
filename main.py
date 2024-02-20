@@ -21,7 +21,15 @@ vitesse_initiale_tir = 0
 
 vitesse_initiale = c.VITESSE_BOULET_MIN
 
+angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+temps_debut_explosion = 0
+coordonnees_explosion = 0, 0
+
+en_tir = False
 en_animation_tir = False
+
+en_explosion = False
 
 nombre_clic_en_jeu = 0
 tir_possible = False
@@ -31,18 +39,45 @@ en_jeu = False
 
 
 def fonction_trajectoire(x, alpha, v0, g):
-    return (-1/2) * g * (x / (v0 * math.cos(alpha))) ** 2 + x * math.tan(alpha)
+    return (-1 / 2) * g * (x / (v0 * math.cos(alpha))) ** 2 + x * math.tan(alpha)
+
+
+def pivoter_fleche_jauge():
+    global angle_rotation
+
+    if not en_animation_tir:
+        if en_tir and angle_rotation >= -c.ANGLE_ROTATION_MAXIMAL:
+            angle_rotation -= (c.ANGLE_ROTATION_MAXIMAL - c.ANGLE_ROTATION_INITAL) * c.INCREMENTATION_VITESSE / \
+                              (c.VITESSE_BOULET_MAX - c.VITESSE_BOULET_MIN)
+
+    else:
+        if angle_rotation < -5:
+            angle_rotation += 10
+        else:
+            angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+    image_fleche_pivote = pygame.transform.rotate(c.IMAGE_FLECHE_JAUGE, angle_rotation)
+    fleche_pivote_rect = image_fleche_pivote.get_rect(center=c.POSITION_CENTRE_FLECHE_JAUGE)
+
+    fenetre_jeu.blit(image_fleche_pivote, fleche_pivote_rect)
+
+
+def coordonnees_tir(position_x, position_y):
+    global tir_possible
+
+    limite_pos_x = 40
+    limite_pos_y = 150
+
+    if position_x < CENTRE_CANON[0] + limite_pos_x:
+        position_x = CENTRE_CANON[0] + limite_pos_x
+    if position_y > CENTRE_CANON[1] - limite_pos_y:
+        position_y = CENTRE_CANON[1] - limite_pos_y
+
+    return position_x, position_y
 
 
 def angle_tir_canon(position_x, position_y):
-    limite_pos_x = 30
-    limite_pos_y = 30
-
-    if not (position_x >= CENTRE_CANON[0] + limite_pos_x and position_y <= CENTRE_CANON[1] - limite_pos_y):
-        if position_x < CENTRE_CANON[0] + limite_pos_x:
-            position_x = CENTRE_CANON[0] + limite_pos_x
-        elif position_y > CENTRE_CANON[1] - limite_pos_y:
-            position_y = CENTRE_CANON[1] - limite_pos_y
+    position_x, position_y = coordonnees_tir(position_x, position_y)
 
     longueur_adjacent = position_x - CENTRE_CANON[0]
     longueur_oppose = CENTRE_CANON[1] - position_y
@@ -67,15 +102,24 @@ def affichage_accueil(position_x, position_y):
 def actualisation_jeu(position_x, position_y):
     global position_x_boulet, position_y_boulet
     global position_x_tir, position_y_tir, vitesse_initiale_tir
+    global en_animation_tir, en_explosion
+    global temps_debut_explosion
+    global coordonnees_explosion
+    global vitesse_initiale, vitesse_initiale_tir
+    global angle_rotation
 
     fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
 
     image_canon_pivote = pygame.transform.rotate(c.IMAGE_CANON_SANS_ROUE,
                                                  math.degrees(angle_tir_canon(position_x, position_y)))
+
     canon_pivote_rect = image_canon_pivote.get_rect(center=CENTRE_CANON)
 
     fenetre_jeu.blit(image_canon_pivote, canon_pivote_rect)
     fenetre_jeu.blit(c.IMAGE_ROUE_CANON, (c.POS_X_ROUE_CANON, c.POS_Y_ROUE_CANON))
+
+    fenetre_jeu.blit(c.IMAGE_JAUGE_TIR, (c.DECALAGE_JAUGE, c.DECALAGE_JAUGE))
+    pivoter_fleche_jauge()
 
     if en_animation_tir:
         """
@@ -89,6 +133,8 @@ def actualisation_jeu(position_x, position_y):
 
         En résumé, la normalisation du vecteur OM est importante car elle nous donne une direction à suivre à partir du point O vers le point M. En multipliant cette direction par le rayon du cercle, nous obtenons un vecteur qui pointe vers le point d'intersection entre la droite OM et le cercle.
         """
+
+        position_x, position_y = coordonnees_tir(position_x, position_y)
 
         # Vectorisation pour déterminer l'emplacement de l'apparition du boulet pour l'animation de tir
 
@@ -111,14 +157,41 @@ def actualisation_jeu(position_x, position_y):
                                                  vitesse_initiale_tir, intensite_pesanteur)
 
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
-        boulet_canon_rect.x, boulet_canon_rect.y =\
+        boulet_canon_rect.x, boulet_canon_rect.y = \
             position_x_boulet + pos_x_centre_bouche_canon - 30, pos_y_centre_bouche_canon - position_y_boulet
 
-        fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
+        if not (boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT)):
+            fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
+
+        else:
+            position_x_boulet = 0
+            position_y_boulet = 0
+
+            position_x_tir = 0
+            position_y_tir = 0
+            vitesse_initiale_tir = 0
+
+            vitesse_initiale = c.VITESSE_BOULET_MIN
+
+            angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+            en_animation_tir = False
+            en_explosion = True
+
+            coordonnees_explosion = boulet_canon_rect.center
+            temps_debut_explosion = pygame.time.get_ticks()
+
+    if en_explosion:
+        if pygame.time.get_ticks() - temps_debut_explosion < c.DUREE_EXPLOSION:
+            explosion_rect = c.IMAGE_EXPLOSION.get_rect()
+            explosion_rect.center = coordonnees_explosion
+            fenetre_jeu.blit(c.IMAGE_EXPLOSION, explosion_rect)
+        else:
+            en_explosion = False
+            temps_debut_explosion = 0
 
 
 while en_execution:
-
     position_souris_x, position_souris_y = pygame.mouse.get_pos()
 
     if en_jeu:
@@ -127,11 +200,12 @@ while en_execution:
     else:
         affichage_accueil(position_souris_x, position_souris_y)
 
-    pygame.display.flip()
-
     if pygame.mouse.get_pressed()[0]:
         if not en_animation_tir and vitesse_initiale < c.VITESSE_BOULET_MAX and tir_possible:
-            vitesse_initiale += 0.83
+            en_tir = True
+            vitesse_initiale += c.INCREMENTATION_VITESSE
+
+    pygame.display.flip()
 
     for event in pygame.event.get():
 
@@ -148,10 +222,10 @@ while en_execution:
 
             if tir_possible and not en_animation_tir:
                 en_animation_tir = True
+                en_tir = False
 
-                position_x_tir = position_souris_x
-                position_y_tir = position_souris_y
-                vitesse_initiale_tir = vitesse_initiale
+                position_x_tir, position_y_tir = coordonnees_tir(position_souris_x, position_souris_y)
+                vitesse_initiale_tir = vitesse_initiale * c.MULTIPLICATEUR_VITESSE
 
             else:
                 if nombre_clic_en_jeu > 0:
