@@ -36,6 +36,8 @@ en_explosion = False
 nombre_clic_en_jeu = 0
 tir_possible = False
 
+mode_facile = True
+
 en_execution = True
 en_jeu = False
 
@@ -72,6 +74,27 @@ def game_over():
     tir_possible = False
 
     en_jeu = False
+
+
+def trajectoire_mode_facile(position_x, position_y):
+    if en_tir:
+        angle_tir = angle_tir_canon(position_x, position_y)
+
+        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon = \
+            CENTRE_CANON[0] + c.RAYON_CANON_TIR * math.cos(angle_tir), \
+            CENTRE_CANON[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
+
+        for position_x_marqueur in range(c.POS_DEBUT_MARQUEUR_TRAJ, c.POS_FIN_MARQUEUR_TRAJ, c.AJOUT_POS_MARQUEUR_TRAJ):
+            position_y_marqueur = fonction_trajectoire(position_x_marqueur, angle_tir, vitesse_initiale,
+                                                       intensite_pesanteur)
+
+            pygame.draw.circle(fenetre_jeu, "yellow", (position_x_marqueur + pos_x_centre_bouche_canon,
+                                                       pos_y_centre_bouche_canon - position_y_marqueur),
+                               c.LARGEUR_MARQUEUR_TRAJECTOIRE)
+
+            pygame.draw.circle(fenetre_jeu, "black", (position_x_marqueur + pos_x_centre_bouche_canon,
+                                                      pos_y_centre_bouche_canon - position_y_marqueur),
+                               c.LARGEUR_MARQUEUR_TRAJECTOIRE, 1)
 
 
 def en_collision_boulet(boulet_canon_rect):
@@ -163,6 +186,9 @@ def actualisation_jeu(position_x, position_y):
 
     fenetre_jeu.blit(c.IMAGE_JAUGE_TIR, (c.DECALAGE_JAUGE, c.DECALAGE_JAUGE))
     pivoter_fleche_jauge()
+
+    if mode_facile:
+        trajectoire_mode_facile(position_x, position_y)
 
     if en_animation_tir:
         angle_tir = angle_tir_canon(position_x_tir, position_y_tir)
