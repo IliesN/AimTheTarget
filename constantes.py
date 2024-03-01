@@ -14,6 +14,7 @@ IMAGE_DECOR_ACCUEIL = pygame.image.load("decors/decor_accueil.jpg")
 IMAGE_BOUTON_JOUER = pygame.image.load("elements_principaux/bouton_jouer.png")
 IMAGE_EFFET_BOUTON = pygame.image.load("elements_principaux/effet_bouton.png")
 IMAGE_CASE_ENCOCHE = pygame.image.load("elements_principaux/case_encoche.png")
+IMAGE_CASE_ENCOCHE_EFFET = pygame.image.load("elements_principaux/case_encoche_effet.png")
 IMAGE_ENCOCHE_VERTE = pygame.image.load("elements_principaux/encoche_verte.png")
 IMAGE_TEXTE_MODE_ON = pygame.image.load("elements_principaux/texte_mode_facile_on.png")
 IMAGE_TEXTE_MODE_OFF = pygame.image.load("elements_principaux/texte_mode_facile_off.png")
@@ -67,6 +68,11 @@ POS_X_SUPP_MODE_FACILE = 205
 
 ENCOCHE_RECT = IMAGE_CASE_ENCOCHE.get_rect()
 ENCOCHE_RECT.center = LARGEUR_FENETRE / 2 - 115, HAUTEUR_FENETRE / 2 + POS_X_SUPP_MODE_FACILE
+
+LARGEUR_ENCOCHE, HAUTEUR_ENCOCHE = 50, 43
+
+ENCOCHE_EFFET_RECT = IMAGE_CASE_ENCOCHE_EFFET.get_rect()
+ENCOCHE_EFFET_RECT.center = ENCOCHE_RECT.center
 
 TEXTE_MODE_FACILE_RECT = IMAGE_TEXTE_MODE_ON.get_rect()
 TEXTE_MODE_FACILE_RECT.center = LARGEUR_FENETRE / 2 + 30, HAUTEUR_FENETRE / 2 + POS_X_SUPP_MODE_FACILE
