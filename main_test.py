@@ -1,4 +1,4 @@
-import constantes as c
+import constantes_test as c
 import pygame
 import math
 
@@ -8,7 +8,6 @@ fenetre_jeu = pygame.display.set_mode((c.LARGEUR_FENETRE, c.HAUTEUR_FENETRE))
 pygame.display.set_icon(c.ICONE_JEU)
 
 CENTRE_CANON = c.POSTION_CENTRE_CANON_SANS_ROUE
-D_EFF_BOUTON = c.DIMENSION_IMAGE_EFFET_BOUTON
 
 intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
 
@@ -36,6 +35,8 @@ en_explosion = False
 nombre_clic_en_jeu = 0
 tir_possible = False
 
+mode_facile = False
+
 en_execution = True
 en_jeu = False
 
@@ -43,7 +44,7 @@ en_jeu = False
 def game_over():
     global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
     global temps_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu
-    global tir_possible, en_jeu
+    global tir_possible, en_jeu, mode_facile
 
     intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
 
@@ -71,7 +72,30 @@ def game_over():
     nombre_clic_en_jeu = 0
     tir_possible = False
 
+    mode_facile = False
+
     en_jeu = False
+
+
+def trajectoire_mode_facile(position_x, position_y):
+    if en_tir:
+        angle_tir = angle_tir_canon(position_x, position_y)
+
+        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon = \
+            CENTRE_CANON[0] + c.RAYON_CANON_TIR * math.cos(angle_tir), \
+            CENTRE_CANON[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
+
+        for position_x_marqueur in range(c.POS_DEBUT_MARQUEUR_TRAJ, c.POS_FIN_MARQUEUR_TRAJ, c.AJOUT_POS_MARQUEUR_TRAJ):
+            position_y_marqueur = fonction_trajectoire(position_x_marqueur, angle_tir, vitesse_initiale,
+                                                       intensite_pesanteur)
+
+            pygame.draw.circle(fenetre_jeu, "yellow", (position_x_marqueur + pos_x_centre_bouche_canon,
+                                                       pos_y_centre_bouche_canon - position_y_marqueur),
+                               c.LARGEUR_MARQUEUR_TRAJECTOIRE)
+
+            pygame.draw.circle(fenetre_jeu, "black", (position_x_marqueur + pos_x_centre_bouche_canon,
+                                                      pos_y_centre_bouche_canon - position_y_marqueur),
+                               c.LARGEUR_MARQUEUR_TRAJECTOIRE, 1)
 
 
 def en_collision_boulet(boulet_canon_rect):
@@ -92,8 +116,8 @@ def pivoter_fleche_jauge():
                               (c.VITESSE_BOULET_MAX - c.VITESSE_BOULET_MIN)
 
     else:
-        if angle_rotation < -5:
-            angle_rotation += 10
+        if angle_rotation < c.ANGLE_LIMITE_DIMINUTION:
+            angle_rotation += c.DIMINUTION_FLECHE_JAUGE
         else:
             angle_rotation = -c.ANGLE_ROTATION_INITAL
 
@@ -102,31 +126,43 @@ def pivoter_fleche_jauge():
 
     fenetre_jeu.blit(image_fleche_pivote, fleche_pivote_rect)
 
+
 def angle_tir_canon(position_x, position_y):
     longueur_adjacent = position_x - CENTRE_CANON[0]
     longueur_oppose = CENTRE_CANON[1] - position_y
     longueur_hypotenuse = math.sqrt(longueur_adjacent ** 2 + longueur_oppose ** 2)
 
     angle_tir = math.acos(longueur_adjacent / longueur_hypotenuse)
-    if angle_tir < 0.2:
-        angle_tir = 0.2
-    elif angle_tir > 1.4:
-        angle_tir = 1.4
+    if angle_tir < c.ANGLE_TIR_MINIMAL:
+        angle_tir = c.ANGLE_TIR_MINIMAL
+    elif angle_tir > c.ANGLE_TIR_MAXIMAL:
+        angle_tir = c.ANGLE_TIR_MAXIMAL
 
     return angle_tir
 
 
 def affichage_accueil(position_x, position_y):
+    global mode_facile
+
+    coordonnees_encoche = c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y
+
     fenetre_jeu.blit(c.IMAGE_DECOR_ACCUEIL, (0, 0))
+    fenetre_jeu.blit(c.IMAGE_TEXTE_NOM_JEU, c.TEXTE_NOM_JEU_RECT)
+    fenetre_jeu.blit(c.IMAGE_TEXTE_CLIQUEZ, c.TEXTE_CLIQUEZ_RECT)
+
     fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
 
-    if (c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2 < position_x < c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2 + D_EFF_BOUTON
-            and c.HAUTEUR_FENETRE / 2 + c.POS_Y_BT_SUPP <
-            position_y < c.HAUTEUR_FENETRE / 2 + c.POS_Y_BT_SUPP + D_EFF_BOUTON):
-        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, (c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2, c.HAUTEUR_FENETRE / 2 +
-                                                c.POS_Y_BT_SUPP - c.POS_Y_EFFET_BT_SUPP))
+    fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
+
+    if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
+            and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + c.DIMENSION_IMAGE_BOUTON:
+        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
+
+    if mode_facile:
+        fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, coordonnees_encoche)
+        fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_ON, c.TEXTE_MODE_FACILE_RECT)
     else:
-        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, (c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2, c.HAUTEUR_FENETRE))
+        fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_OFF, c.TEXTE_MODE_FACILE_RECT)
 
 
 def actualisation_jeu(position_x, position_y):
@@ -163,42 +199,23 @@ def actualisation_jeu(position_x, position_y):
     fenetre_jeu.blit(c.IMAGE_JAUGE_TIR, (c.DECALAGE_JAUGE, c.DECALAGE_JAUGE))
     pivoter_fleche_jauge()
 
+    if mode_facile:
+        trajectoire_mode_facile(position_x, position_y)
+
     if en_animation_tir:
-        """
-        Lorsque vous avez les coordonnées de deux points, disons O et M, vous pouvez créer un vecteur en soustrayant les coordonnées de O de celles de M. Ce vecteur représente la direction et la distance entre les deux points.
+        angle_tir = angle_tir_canon(position_x_tir, position_y_tir)
 
-        Dans notre cas, le vecteur OM représente la direction et la distance du point O (centre du cercle) au point M (un point en dehors du cercle).
+        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon =\
+            CENTRE_CANON[0] + c.RAYON_CANON_TIR * math.cos(angle_tir),\
+            CENTRE_CANON[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
 
-        La norme d'un vecteur est sa longueur dans l'espace. Dans un espace 2D, la norme d'un vecteur (x, y) est donnée par la formule :
-
-        Cette direction normalisée nous indique la direction de OM. Nous multiplions ensuite cette direction par le rayon du cercle pour obtenir un vecteur avec la même direction mais une longueur égale au rayon du cercle. En ajoutant ce vecteur au point O, nous trouvons les coordonnées de l'intersection entre la droite OM et le cercle.
-
-        En résumé, la normalisation du vecteur OM est importante car elle nous donne une direction à suivre à partir du point O vers le point M. En multipliant cette direction par le rayon du cercle, nous obtenons un vecteur qui pointe vers le point d'intersection entre la droite OM et le cercle.
-        """
-
-        # Vectorisation pour déterminer l'emplacement de l'apparition du boulet pour l'animation de tir
-
-        # Soit le point O, de coordonnées = au centre du canon, et M, de coordonnées = à position de la souris;
-        # Les coordonées du vecteur OM sont donc :
-        om_pos_x_vect, om_pos_y_vect = position_x - CENTRE_CANON[0], position_y - CENTRE_CANON[1]
-
-        # Norme du vecteur OM
-        norme_vect_om = math.sqrt(om_pos_x_vect ** 2 + om_pos_y_vect ** 2)
-
-        # Normalisation du vecteur OM
-        direction_om_x, direction_om_y = om_pos_x_vect / norme_vect_om, om_pos_y_vect / norme_vect_om
-
-        # Coordonnées de l'intersection avec le cercle
-        pos_x_centre_bouche_canon = CENTRE_CANON[0] + direction_om_x * c.RAYON_CANON_TIR
-        pos_y_centre_bouche_canon = CENTRE_CANON[1] + direction_om_y * c.RAYON_CANON_TIR
-
-        position_x_boulet += vitesse_initiale_tir / 5
-        position_y_boulet = fonction_trajectoire(position_x_boulet, angle_tir_canon(position_x_tir, position_y_tir),
-                                                 vitesse_initiale_tir, intensite_pesanteur)
+        position_x_boulet += vitesse_initiale_tir / c.DIVISEUR_VITESSE
+        position_y_boulet = fonction_trajectoire(position_x_boulet, angle_tir, vitesse_initiale_tir,
+                                                 intensite_pesanteur)
 
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
-        boulet_canon_rect.x, boulet_canon_rect.y = \
-            position_x_boulet + pos_x_centre_bouche_canon - 30, pos_y_centre_bouche_canon - position_y_boulet
+        boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET,\
+            pos_y_centre_bouche_canon - position_y_boulet
 
         if not en_collision_boulet(boulet_canon_rect):
             fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
@@ -260,8 +277,11 @@ while en_execution:
             pygame.quit()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if not en_jeu and c.BOUTON_JOUER_RECT.collidepoint(event.pos):
-                en_jeu = True
+            if not en_jeu:
+                if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
+                    en_jeu = True
+                elif c.ENCOCHE_RECT.collidepoint(event.pos):
+                    mode_facile = not mode_facile
 
         elif en_jeu and event.type == pygame.MOUSEBUTTONUP:
             nombre_clic_en_jeu += 1

@@ -13,14 +13,16 @@ ICONE_JEU = pygame.image.load("elements_principaux/icone_jeu.png")
 IMAGE_DECOR_ACCUEIL = pygame.image.load("decors/decor_accueil.jpg")
 IMAGE_BOUTON_JOUER = pygame.image.load("elements_principaux/bouton_jouer.png")
 IMAGE_EFFET_BOUTON = pygame.image.load("elements_principaux/effet_bouton.png")
-
-# ...
+IMAGE_CASE_ENCOCHE = pygame.image.load("elements_principaux/case_encoche.png")
+IMAGE_ENCOCHE_VERTE = pygame.image.load("elements_principaux/encoche_verte.png")
+IMAGE_TEXTE_MODE_ON = pygame.image.load("elements_principaux/texte_mode_facile_on.png")
+IMAGE_TEXTE_MODE_OFF = pygame.image.load("elements_principaux/texte_mode_facile_off.png")
+IMAGE_TEXTE_NOM_JEU = pygame.image.load("elements_principaux/texte_nom_jeu.png")
+IMAGE_TEXTE_CLIQUEZ = pygame.image.load("elements_principaux/texte_cliquez.png")
 
 
 # Decors
 IMAGE_DECOR_TERRE = pygame.image.load("decors/decor_type_terre.jpg")
-
-# ...
 
 
 # Elements decors
@@ -33,7 +35,6 @@ IMAGE_EXPLOSION = pygame.image.load("elements_decor/explosion.png")
 IMAGE_COEUR_ROUGE = pygame.image.load("elements_decor/coeur_rouge.png")
 IMAGE_COEUR_NOIR = pygame.image.load("elements_decor/coeur_noir.png")
 IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
-# ...
 
 
 # Valeurs constantes
@@ -42,23 +43,39 @@ IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
 
 IPS = 60
 
-DIMENSION_IMAGE_BOUTON = 150
-POS_Y_BT_SUPP = 35
+TEXTE_NOM_JEU_RECT = IMAGE_TEXTE_NOM_JEU.get_rect()
+TEXTE_NOM_JEU_RECT.center = LARGEUR_FENETRE / 2, 100
 
+TEXTE_CLIQUEZ_RECT = IMAGE_TEXTE_CLIQUEZ.get_rect()
+TEXTE_CLIQUEZ_RECT.center = LARGEUR_FENETRE / 2, 220
+
+DIMENSION_IMAGE_BOUTON = 150
 DIMENSION_IMAGE_EFFET_BOUTON = 175
-POS_Y_EFFET_BT_SUPP = 10
+
+DECALAGE_EFFET_BOUTON = 10
+
+DECALAGE_BOUTON_HAUT = 80
 
 BOUTON_JOUER_RECT = IMAGE_BOUTON_JOUER.get_rect()
-BOUTON_JOUER_RECT.x, BOUTON_JOUER_RECT.y =\
-    LARGEUR_FENETRE / 2 - DIMENSION_IMAGE_BOUTON / 2, HAUTEUR_FENETRE / 2 + POS_Y_BT_SUPP
-# ...
+BOUTON_JOUER_RECT.center = LARGEUR_FENETRE / 2, HAUTEUR_FENETRE / 2 + DECALAGE_BOUTON_HAUT
+
+EFFET_BOUTON_RECT = IMAGE_BOUTON_JOUER.get_rect()
+EFFET_BOUTON_RECT.center = LARGEUR_FENETRE / 2 - DECALAGE_EFFET_BOUTON,\
+    HAUTEUR_FENETRE / 2 + DECALAGE_BOUTON_HAUT - DECALAGE_EFFET_BOUTON
+
+POS_X_SUPP_MODE_FACILE = 205
+
+ENCOCHE_RECT = IMAGE_CASE_ENCOCHE.get_rect()
+ENCOCHE_RECT.center = LARGEUR_FENETRE / 2 - 115, HAUTEUR_FENETRE / 2 + POS_X_SUPP_MODE_FACILE
+
+TEXTE_MODE_FACILE_RECT = IMAGE_TEXTE_MODE_ON.get_rect()
+TEXTE_MODE_FACILE_RECT.center = LARGEUR_FENETRE / 2 + 30, HAUTEUR_FENETRE / 2 + POS_X_SUPP_MODE_FACILE
 
 
 # En jeu
 
 INTENSITE_PESANTEUR_TERRE = 9.81
 
-# ...
 
 DECALAGE_X_CANON = 25
 

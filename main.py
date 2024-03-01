@@ -1,4 +1,4 @@
-import constantes as c
+import constantes_test as c
 import pygame
 import math
 
@@ -8,7 +8,6 @@ fenetre_jeu = pygame.display.set_mode((c.LARGEUR_FENETRE, c.HAUTEUR_FENETRE))
 pygame.display.set_icon(c.ICONE_JEU)
 
 CENTRE_CANON = c.POSTION_CENTRE_CANON_SANS_ROUE
-D_EFF_BOUTON = c.DIMENSION_IMAGE_EFFET_BOUTON
 
 intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
 
@@ -36,7 +35,7 @@ en_explosion = False
 nombre_clic_en_jeu = 0
 tir_possible = False
 
-mode_facile = True
+mode_facile = False
 
 en_execution = True
 en_jeu = False
@@ -45,7 +44,7 @@ en_jeu = False
 def game_over():
     global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
     global temps_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu
-    global tir_possible, en_jeu
+    global tir_possible, en_jeu, mode_facile
 
     intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
 
@@ -72,6 +71,8 @@ def game_over():
 
     nombre_clic_en_jeu = 0
     tir_possible = False
+
+    mode_facile = False
 
     en_jeu = False
 
@@ -141,16 +142,27 @@ def angle_tir_canon(position_x, position_y):
 
 
 def affichage_accueil(position_x, position_y):
+    global mode_facile
+
+    coordonnees_encoche = c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y
+
     fenetre_jeu.blit(c.IMAGE_DECOR_ACCUEIL, (0, 0))
+    fenetre_jeu.blit(c.IMAGE_TEXTE_NOM_JEU, c.TEXTE_NOM_JEU_RECT)
+    fenetre_jeu.blit(c.IMAGE_TEXTE_CLIQUEZ, c.TEXTE_CLIQUEZ_RECT)
+
     fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
 
-    if (c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2 < position_x < c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2 + D_EFF_BOUTON
-            and c.HAUTEUR_FENETRE / 2 + c.POS_Y_BT_SUPP <
-            position_y < c.HAUTEUR_FENETRE / 2 + c.POS_Y_BT_SUPP + D_EFF_BOUTON):
-        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, (c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2, c.HAUTEUR_FENETRE / 2 +
-                                                c.POS_Y_BT_SUPP - c.POS_Y_EFFET_BT_SUPP))
+    fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
+
+    if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
+            and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + c.DIMENSION_IMAGE_BOUTON:
+        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
+
+    if mode_facile:
+        fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, coordonnees_encoche)
+        fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_ON, c.TEXTE_MODE_FACILE_RECT)
     else:
-        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, (c.LARGEUR_FENETRE / 2 - D_EFF_BOUTON / 2, c.HAUTEUR_FENETRE))
+        fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_OFF, c.TEXTE_MODE_FACILE_RECT)
 
 
 def actualisation_jeu(position_x, position_y):
@@ -265,8 +277,11 @@ while en_execution:
             pygame.quit()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if not en_jeu and c.BOUTON_JOUER_RECT.collidepoint(event.pos):
-                en_jeu = True
+            if not en_jeu:
+                if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
+                    en_jeu = True
+                elif c.ENCOCHE_RECT.collidepoint(event.pos):
+                    mode_facile = not mode_facile
 
         elif en_jeu and event.type == pygame.MOUSEBUTTONUP:
             nombre_clic_en_jeu += 1
