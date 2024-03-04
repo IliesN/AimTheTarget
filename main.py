@@ -1,4 +1,4 @@
-import constantes as c
+import constantes_test as c
 import fonctions_calcul as calc
 import pygame
 import math
@@ -176,7 +176,6 @@ def affichage_accueil(position_x, position_y):
     fenetre_jeu.blit(c.IMAGE_DECOR_ACCUEIL, (0, 0))
     fenetre_jeu.blit(c.IMAGE_TEXTE_NOM_JEU, c.TEXTE_NOM_JEU_RECT)
     fenetre_jeu.blit(c.IMAGE_TEXTE_CLIQUEZ, c.TEXTE_CLIQUEZ_RECT)
-    fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
 
     # Affichage de l'encoche et du bouton de jouer avec effet au survol de la souris
     if c.ENCOCHE_RECT.topleft[0] < position_x < c.ENCOCHE_RECT.topleft[0] + c.LARGEUR_ENCOCHE \
@@ -188,6 +187,8 @@ def affichage_accueil(position_x, position_y):
     if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
             and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + c.DIMENSION_IMAGE_BOUTON:
         fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
 
     # Affichage du mode de jeu (facile ou normal) avec le texte et l'encoche associés
     if mode_facile:
