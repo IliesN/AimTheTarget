@@ -1,7 +1,6 @@
 import constantes as c
 import math
 
-
 def fonction_trajectoire(x, alpha, v0, g):
     """
     Calcule la trajectoire d'un projectile en fonction de plusieurs paramètres.
