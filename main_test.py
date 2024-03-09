@@ -184,6 +184,12 @@ def affichage_accueil(position_x, position_y):
     else:
         fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
 
+    if c.REGLES_RECT.topleft[0] < position_x < c.REGLES_RECT.topleft[0] + c.DIMENSION_IMAGE_REGLES \
+            and c.REGLES_RECT.topleft[1] < position_y < c.REGLES_RECT.topleft[1] + c.DIMENSION_IMAGE_REGLES:
+        fenetre_jeu.blit(c.IMAGE_REGLES_EFFET, c.REGLES_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
+
     if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
             and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + c.DIMENSION_IMAGE_BOUTON:
         fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)

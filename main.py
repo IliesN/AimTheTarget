@@ -1,4 +1,4 @@
-import constantes_test as c
+import constantes as c
 import fonctions_calcul as calc
 import pygame
 import math
@@ -183,6 +183,12 @@ def affichage_accueil(position_x, position_y):
         fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE_EFFET, c.ENCOCHE_EFFET_RECT)
     else:
         fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
+
+    if c.REGLES_RECT.topleft[0] < position_x < c.REGLES_RECT.topleft[0] + c.DIMENSION_IMAGE_REGLES \
+            and c.REGLES_RECT.topleft[1] < position_y < c.REGLES_RECT.topleft[1] + c.DIMENSION_IMAGE_REGLES:
+        fenetre_jeu.blit(c.IMAGE_REGLES_EFFET, c.REGLES_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
 
     if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
             and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + c.DIMENSION_IMAGE_BOUTON:
