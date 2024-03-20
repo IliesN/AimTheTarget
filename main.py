@@ -1,4 +1,4 @@
-import constantes as c
+import constantes_test as c
 import fonctions_calcul as calc
 import pygame
 import math
@@ -37,6 +37,8 @@ nombre_clic_en_jeu = 0
 tir_possible = False
 
 mode_facile = False
+
+regles_affichees = False
 
 en_execution = True
 en_jeu = False
@@ -177,31 +179,45 @@ def affichage_accueil(position_x, position_y):
     fenetre_jeu.blit(c.IMAGE_TEXTE_NOM_JEU, c.TEXTE_NOM_JEU_RECT)
     fenetre_jeu.blit(c.IMAGE_TEXTE_CLIQUEZ, c.TEXTE_CLIQUEZ_RECT)
 
-    # Affichage de l'encoche et du bouton de jouer avec effet au survol de la souris
-    if c.ENCOCHE_RECT.topleft[0] < position_x < c.ENCOCHE_RECT.topleft[0] + c.LARGEUR_ENCOCHE \
-            and c.ENCOCHE_RECT.topleft[1] < position_y < c.ENCOCHE_RECT.topleft[1] + c.HAUTEUR_ENCOCHE:
-        fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE_EFFET, c.ENCOCHE_EFFET_RECT)
-    else:
-        fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
+    if not regles_affichees:
+        # Affichage du mode de jeu (facile ou normal) avec le texte et l'encoche associés
+        if mode_facile:
+            fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, (c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y))
+            fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_ON, c.TEXTE_MODE_FACILE_RECT)
+        else:
+            fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_OFF, c.TEXTE_MODE_FACILE_RECT)
 
-    if c.REGLES_RECT.topleft[0] < position_x < c.REGLES_RECT.topleft[0] + c.DIMENSION_IMAGE_REGLES \
-            and c.REGLES_RECT.topleft[1] < position_y < c.REGLES_RECT.topleft[1] + c.DIMENSION_IMAGE_REGLES:
-        fenetre_jeu.blit(c.IMAGE_REGLES_EFFET, c.REGLES_RECT)
-    else:
-        fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
+        # Affichage de l'encoche et du bouton de jouer avec effet au survol de la souris
+        if c.ENCOCHE_RECT.topleft[0] < position_x < c.ENCOCHE_RECT.topleft[0] + c.LARGEUR_ENCOCHE \
+                and c.ENCOCHE_RECT.topleft[1] < position_y < c.ENCOCHE_RECT.topleft[1] + c.HAUTEUR_ENCOCHE:
+            fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE_EFFET, c.ENCOCHE_EFFET_RECT)
+        else:
+            fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
 
-    if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
-            and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + c.DIMENSION_IMAGE_BOUTON:
-        fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
-    else:
-        fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
+        if c.REGLES_RECT.topleft[0] < position_x < c.REGLES_RECT.topleft[0] + c.DIMENSION_IMAGE_REGLES \
+                and c.REGLES_RECT.topleft[1] < position_y < c.REGLES_RECT.topleft[1] + c.DIMENSION_IMAGE_REGLES:
+            fenetre_jeu.blit(c.IMAGE_REGLES_EFFET, c.REGLES_RECT)
+        else:
+            fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
 
-    # Affichage du mode de jeu (facile ou normal) avec le texte et l'encoche associés
-    if mode_facile:
-        fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, (c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y))
-        fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_ON, c.TEXTE_MODE_FACILE_RECT)
+        if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
+                and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] +\
+                c.DIMENSION_IMAGE_BOUTON:
+            fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
+        else:
+            fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
+
     else:
-        fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_OFF, c.TEXTE_MODE_FACILE_RECT)
+        pygame.draw.rect(fenetre_jeu, "white", c.SURFACE_REGLES_RECT)
+        pygame.draw.rect(fenetre_jeu, "black", c.SURFACE_REGLES_RECT, 3)
+
+        fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.REGLES, True, "black"), c.COORDONNEES_TEXTE_REGLES)
+
+        if c.CROIX_RECT.topleft[0] < position_x < c.CROIX_RECT.topleft[0] + c.DIMENSION_CROIX_ROUGE \
+                and c.CROIX_RECT.topleft[1] < position_y < c.CROIX_RECT.topleft[1] + c.DIMENSION_CROIX_ROUGE:
+            fenetre_jeu.blit(c.IMAGE_CROIX_EFFET, c.CROIX_EFFET_RECT)
+        else:
+            fenetre_jeu.blit(c.IMAGE_CROIX, c.CROIX_RECT)
 
 
 def trajectoire_mode_facile(position_x, position_y):
@@ -275,7 +291,7 @@ def pivoter_fleche_jauge():
 def game_over():
     global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
     global temps_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu
-    global tir_possible, en_jeu, mode_facile
+    global tir_possible, en_jeu, mode_facile, regles_affichees
 
     intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
 
@@ -304,6 +320,8 @@ def game_over():
     tir_possible = False
 
     mode_facile = False
+
+    regles_affichees = False
 
     en_jeu = False
 
@@ -346,14 +364,21 @@ while en_execution:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Si le jeu n'est pas en cours
             if not en_jeu:
-                # Si le bouton "Jouer" est cliqué
-                if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
-                    # Commencer le jeu
-                    en_jeu = True
-                # Si la zone d'enclenchement est cliquée
-                elif c.ENCOCHE_RECT.collidepoint(event.pos):
-                    # Inverser le mode de difficulté
-                    mode_facile = not mode_facile
+                if not regles_affichees:
+                    # Si le bouton "Jouer" est cliqué
+                    if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
+                        # Commencer le jeu
+                        en_jeu = True
+                    # Si la case d'encoche pour le mode facile est cliquée
+                    elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
+                        # Inverser le mode de difficulté
+                        mode_facile = not mode_facile
+
+                    elif c.REGLES_RECT.collidepoint(event.pos):
+                        regles_affichees = True
+
+                elif c.CROIX_RECT.collidepoint(event.pos):
+                    regles_affichees = False
 
         # Si un bouton de la souris est relâché et le jeu est en cours
         elif en_jeu and event.type == pygame.MOUSEBUTTONUP:

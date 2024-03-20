@@ -22,6 +22,8 @@ IMAGE_TEXTE_NOM_JEU = pygame.image.load("elements_principaux/texte_nom_jeu.png")
 IMAGE_TEXTE_CLIQUEZ = pygame.image.load("elements_principaux/texte_cliquez.png")
 IMAGE_REGLES = pygame.image.load("elements_principaux/regles.png")
 IMAGE_REGLES_EFFET = pygame.image.load("elements_principaux/regles_effet.png")
+IMAGE_CROIX = pygame.image.load("elements_principaux/croix_rouge.png")
+IMAGE_CROIX_EFFET = pygame.image.load("elements_principaux/croix_rouge_effet.png")
 
 
 # Decors
@@ -79,6 +81,22 @@ DIMENSION_IMAGE_REGLES = 115
 
 REGLES_RECT = IMAGE_REGLES.get_rect()
 REGLES_RECT.bottomright = LARGEUR_FENETRE - 2, HAUTEUR_FENETRE
+
+SURFACE_REGLES_RECT = pygame.Rect(40, 30, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 60)
+
+DIMENSION_CROIX_ROUGE = 40
+
+CROIX_RECT = IMAGE_CROIX.get_rect()
+CROIX_RECT.center = SURFACE_REGLES_RECT.topright[0] - 30, SURFACE_REGLES_RECT.topright[1] + 30
+
+CROIX_EFFET_RECT = IMAGE_CROIX_EFFET.get_rect()
+CROIX_EFFET_RECT.center = CROIX_RECT.center
+
+COORDONNEES_TEXTE_REGLES = SURFACE_REGLES_RECT.topleft[0] + 20, SURFACE_REGLES_RECT.topleft[1] + 10
+
+POLICE_TEXTE_REGLES = pygame.font.SysFont('Comic Sans MS', 25)
+
+REGLES = "Ce sont les règles du jeu. (pour le moment)"
 
 
 # En jeu
