@@ -423,7 +423,7 @@ while en_execution:
 
                 if en_pause:
                     fenetre_jeu.blit(c.IMAGE_FOND_PAUSE, (0, 0))
-                    print("yes")
+
                     for indice_ligne_pause in range(len(c.TEXTE_MENU_PAUSE)):
                         fenetre_jeu.blit(c.POLICE_TEXTE_MENU_PAUSE.render(c.TEXTE_MENU_PAUSE[indice_ligne_pause],
                                                                           True, "white"),
