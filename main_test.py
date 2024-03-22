@@ -29,8 +29,6 @@ coordonnees_explosion = 0, 0
 en_tir = False
 en_animation_tir = False
 
-en_pause = False
-
 en_explosion = False
 
 nombre_clic_en_jeu = 0
@@ -42,6 +40,8 @@ regles_affichees = False
 
 en_execution = True
 en_jeu = False
+
+en_pause = False
 
 
 # Fonctions d'affichage
@@ -327,6 +327,7 @@ def game_over():
 
     en_pause = False
 
+
 while en_execution:
     # Obtenir les coordonnées de la souris
     position_souris_x, position_souris_y = pygame.mouse.get_pos()
@@ -341,6 +342,7 @@ while en_execution:
         else:
             # Actualiser le jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
+
     # Si le jeu n'est pas en cours
     else:
         # Afficher l'écran d'accueil en fonction des coordonnées de la souris
@@ -376,9 +378,12 @@ while en_execution:
                     if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
                         # Commencer le jeu
                         en_jeu = True
+
                         if mode_facile:
                             c.NOMBRE_VIES_INITIAL += 2
+
                         nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+
                     # Si la case d'encoche pour le mode facile est cliquée
                     elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
                         # Inverser le mode de difficulté
@@ -408,10 +413,14 @@ while en_execution:
                 # Si le nombre de clics en jeu est supérieur à 0, un tir est possible
                 if nombre_clic_en_jeu > 0:
                     tir_possible = True
+
         elif en_jeu and event.type == pygame.KEYDOWN:
+
             if event.key == pygame.K_RETURN:
                 en_pause = not en_pause
+
             elif event.key == pygame.K_ESCAPE:
                 game_over()
+
     # Régler le nombre d'images par seconde
     pygame.time.Clock().tick(c.IPS)

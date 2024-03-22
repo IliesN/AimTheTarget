@@ -29,8 +29,6 @@ coordonnees_explosion = 0, 0
 en_tir = False
 en_animation_tir = False
 
-en_pause = False
-
 en_explosion = False
 
 nombre_clic_en_jeu = 0
@@ -42,6 +40,8 @@ regles_affichees = False
 
 en_execution = True
 en_jeu = False
+
+en_pause = False
 
 
 # Fonctions d'affichage
@@ -104,8 +104,8 @@ def actualisation_jeu(position_x, position_y):
         angle_tir = calc.angle_tir_canon(position_x_tir, position_y_tir)
 
         # Calcul des coordonnées du centre de la bouche du canon
-        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon =\
-            c.POSTION_CENTRE_CANON_SANS_ROUE[0] + c.RAYON_CANON_TIR * math.cos(angle_tir),\
+        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon = \
+            c.POSTION_CENTRE_CANON_SANS_ROUE[0] + c.RAYON_CANON_TIR * math.cos(angle_tir), \
             c.POSTION_CENTRE_CANON_SANS_ROUE[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
 
         # Calcul de la nouvelle position du boulet
@@ -115,8 +115,8 @@ def actualisation_jeu(position_x, position_y):
 
         # Création du rectangle englobant du boulet
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
-        boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET,\
-            pos_y_centre_bouche_canon - position_y_boulet
+        boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET, \
+                                   pos_y_centre_bouche_canon - position_y_boulet
 
         # Si le boulet ne collisionne pas avec un obstacle
         if not calc.en_collision_boulet(boulet_canon_rect):
@@ -201,7 +201,7 @@ def affichage_accueil(position_x, position_y):
             fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
 
         if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
-                and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] +\
+                and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + \
                 c.DIMENSION_IMAGE_BOUTON:
             fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
         else:
@@ -327,6 +327,7 @@ def game_over():
 
     en_pause = False
 
+
 while en_execution:
     # Obtenir les coordonnées de la souris
     position_souris_x, position_souris_y = pygame.mouse.get_pos()
@@ -341,6 +342,7 @@ while en_execution:
         else:
             # Actualiser le jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
+
     # Si le jeu n'est pas en cours
     else:
         # Afficher l'écran d'accueil en fonction des coordonnées de la souris
@@ -376,9 +378,12 @@ while en_execution:
                     if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
                         # Commencer le jeu
                         en_jeu = True
+
                         if mode_facile:
                             c.NOMBRE_VIES_INITIAL += 2
+
                         nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+
                     # Si la case d'encoche pour le mode facile est cliquée
                     elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
                         # Inverser le mode de difficulté
@@ -408,10 +413,14 @@ while en_execution:
                 # Si le nombre de clics en jeu est supérieur à 0, un tir est possible
                 if nombre_clic_en_jeu > 0:
                     tir_possible = True
+
         elif en_jeu and event.type == pygame.KEYDOWN:
+
             if event.key == pygame.K_RETURN:
                 en_pause = not en_pause
+
             elif event.key == pygame.K_ESCAPE:
                 game_over()
+
     # Régler le nombre d'images par seconde
     pygame.time.Clock().tick(c.IPS)

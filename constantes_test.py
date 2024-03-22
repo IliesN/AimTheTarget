@@ -99,7 +99,6 @@ POLICE_TEXTE_REGLES = pygame.font.SysFont('Comic Sans MS', 25)
 REGLES = "Ce sont les règles du jeu. (pour le moment)"
 
 
-
 # En jeu
 
 INTENSITE_PESANTEUR_TERRE = 9.81
