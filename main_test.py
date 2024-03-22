@@ -75,7 +75,13 @@ def actualisation_jeu(position_x, position_y):
 
     # Affichage du nombre de vies restantes
     somme_decalage_coeur = c.POS_X_DERNIER_COEUR
-    for indice_coeur_noir in range(c.NOMBRE_VIES_INITIAL - nombre_vies_actuel):
+
+    if mode_facile:
+        nombre_vies_initial = c.NOMBRE_VIES_INITIAL_MODE_FACILE
+    else:
+        nombre_vies_initial = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
+
+    for indice_coeur_noir in range(nombre_vies_initial - nombre_vies_actuel):
         fenetre_jeu.blit(c.IMAGE_COEUR_NOIR, (somme_decalage_coeur, c.POS_Y_COEUR))
         somme_decalage_coeur -= c.DECALAGE_COEUR
 
@@ -309,8 +315,6 @@ def game_over():
     temps_debut_explosion = 0
     coordonnees_explosion = 0, 0
 
-    nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
-
     en_tir = False
     en_animation_tir = False
 
@@ -335,10 +339,9 @@ while en_execution:
     # Si le jeu est en cours
     if en_jeu:
         if en_pause:
-            pygame.draw.rect(fenetre_jeu, "white", c.SURFACE_REGLES_RECT)
-            pygame.draw.rect(fenetre_jeu, "black", c.SURFACE_REGLES_RECT, 3)
+            fenetre_jeu.blit(c.IMAGE_FOND_PAUSE, c.FOND_PAUSE_RECT)
 
-            fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.MENU_PAUSE, True, "black"), c.COORDONNEES_TEXTE_REGLES)
+            fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.MENU_PAUSE, True, "white"), c.COORDONNEES_TEXTE_REGLES)
         else:
             # Actualiser le jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
@@ -380,9 +383,9 @@ while en_execution:
                         en_jeu = True
 
                         if mode_facile:
-                            c.NOMBRE_VIES_INITIAL += 2
-
-                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+                            nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_FACILE
+                        else:
+                            nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
 
                     # Si la case d'encoche pour le mode facile est cliquée
                     elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
@@ -419,7 +422,7 @@ while en_execution:
             if event.key == pygame.K_RETURN:
                 en_pause = not en_pause
 
-            elif event.key == pygame.K_ESCAPE:
+            elif en_pause and event.key == pygame.K_ESCAPE:
                 game_over()
 
     # Régler le nombre d'images par seconde

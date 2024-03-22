@@ -75,7 +75,13 @@ def actualisation_jeu(position_x, position_y):
 
     # Affichage du nombre de vies restantes
     somme_decalage_coeur = c.POS_X_DERNIER_COEUR
-    for indice_coeur_noir in range(c.NOMBRE_VIES_INITIAL - nombre_vies_actuel):
+
+    if mode_facile:
+        nombre_vies_initial = c.NOMBRE_VIES_INITIAL_MODE_FACILE
+    else:
+        nombre_vies_initial = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
+
+    for indice_coeur_noir in range(nombre_vies_initial - nombre_vies_actuel):
         fenetre_jeu.blit(c.IMAGE_COEUR_NOIR, (somme_decalage_coeur, c.POS_Y_COEUR))
         somme_decalage_coeur -= c.DECALAGE_COEUR
 
@@ -104,8 +110,8 @@ def actualisation_jeu(position_x, position_y):
         angle_tir = calc.angle_tir_canon(position_x_tir, position_y_tir)
 
         # Calcul des coordonnées du centre de la bouche du canon
-        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon = \
-            c.POSTION_CENTRE_CANON_SANS_ROUE[0] + c.RAYON_CANON_TIR * math.cos(angle_tir), \
+        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon =\
+            c.POSTION_CENTRE_CANON_SANS_ROUE[0] + c.RAYON_CANON_TIR * math.cos(angle_tir),\
             c.POSTION_CENTRE_CANON_SANS_ROUE[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
 
         # Calcul de la nouvelle position du boulet
@@ -115,8 +121,8 @@ def actualisation_jeu(position_x, position_y):
 
         # Création du rectangle englobant du boulet
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
-        boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET, \
-                                   pos_y_centre_bouche_canon - position_y_boulet
+        boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET,\
+            pos_y_centre_bouche_canon - position_y_boulet
 
         # Si le boulet ne collisionne pas avec un obstacle
         if not calc.en_collision_boulet(boulet_canon_rect):
@@ -201,7 +207,7 @@ def affichage_accueil(position_x, position_y):
             fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
 
         if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
-                and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] + \
+                and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] +\
                 c.DIMENSION_IMAGE_BOUTON:
             fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
         else:
@@ -309,8 +315,6 @@ def game_over():
     temps_debut_explosion = 0
     coordonnees_explosion = 0, 0
 
-    nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
-
     en_tir = False
     en_animation_tir = False
 
@@ -335,10 +339,9 @@ while en_execution:
     # Si le jeu est en cours
     if en_jeu:
         if en_pause:
-            pygame.draw.rect(fenetre_jeu, "white", c.SURFACE_REGLES_RECT)
-            pygame.draw.rect(fenetre_jeu, "black", c.SURFACE_REGLES_RECT, 3)
+            fenetre_jeu.blit(c.IMAGE_FOND_PAUSE, c.FOND_PAUSE_RECT)
 
-            fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.MENU_PAUSE, True, "black"), c.COORDONNEES_TEXTE_REGLES)
+            fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.MENU_PAUSE, True, "white"), c.COORDONNEES_TEXTE_REGLES)
         else:
             # Actualiser le jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
@@ -380,9 +383,9 @@ while en_execution:
                         en_jeu = True
 
                         if mode_facile:
-                            c.NOMBRE_VIES_INITIAL += 2
-
-                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+                            nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_FACILE
+                        else:
+                            nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
 
                     # Si la case d'encoche pour le mode facile est cliquée
                     elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
@@ -419,7 +422,7 @@ while en_execution:
             if event.key == pygame.K_RETURN:
                 en_pause = not en_pause
 
-            elif event.key == pygame.K_ESCAPE:
+            elif en_pause and event.key == pygame.K_ESCAPE:
                 game_over()
 
     # Régler le nombre d'images par seconde

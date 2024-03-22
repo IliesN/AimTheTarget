@@ -25,6 +25,8 @@ IMAGE_REGLES_EFFET = pygame.image.load("elements_principaux/regles_effet.png")
 IMAGE_CROIX = pygame.image.load("elements_principaux/croix_rouge.png")
 IMAGE_CROIX_EFFET = pygame.image.load("elements_principaux/croix_rouge_effet.png")
 
+IMAGE_FOND_PAUSE = pygame.image.load("elements_principaux/menu_pause.png")
+
 
 # Decors
 IMAGE_DECOR_TERRE = pygame.image.load("decors/decor_type_terre.jpg")
@@ -152,7 +154,8 @@ MUR_RECT = pygame.Rect(LARGEUR_FENETRE, 0, LARGEUR_MUR_COLLISION, HAUTEUR_FENETR
 
 DUREE_EXPLOSION = 200
 
-NOMBRE_VIES_INITIAL = 3
+NOMBRE_VIES_INITIAL_MODE_NORMAL = 3
+NOMBRE_VIES_INITIAL_MODE_FACILE = 5
 
 LARGEUR_COEUR = 30
 POS_X_DERNIER_COEUR = LARGEUR_FENETRE - LARGEUR_COEUR - 25
@@ -169,5 +172,8 @@ LARGEUR_MARQUEUR_TRAJECTOIRE = 5
 POS_DEBUT_MARQUEUR_TRAJ = 10
 AJOUT_POS_MARQUEUR_TRAJ = 30
 POS_FIN_MARQUEUR_TRAJ = 350
+
+FOND_PAUSE_RECT = IMAGE_FOND_PAUSE.get_rect()
+FOND_PAUSE_RECT.center = LARGEUR_FENETRE // 2, HAUTEUR_FENETRE // 2
 
 MENU_PAUSE = "Pause. Appuyez sur entrée pour relancer le jeu, et echap pour retourner au menu."
