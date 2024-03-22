@@ -99,6 +99,7 @@ POLICE_TEXTE_REGLES = pygame.font.SysFont('Comic Sans MS', 25)
 REGLES = "Ce sont les règles du jeu. (pour le moment)"
 
 
+
 # En jeu
 
 INTENSITE_PESANTEUR_TERRE = 9.81
@@ -169,3 +170,5 @@ LARGEUR_MARQUEUR_TRAJECTOIRE = 5
 POS_DEBUT_MARQUEUR_TRAJ = 10
 AJOUT_POS_MARQUEUR_TRAJ = 30
 POS_FIN_MARQUEUR_TRAJ = 350
+
+MENU_PAUSE = "Pause. Appuyez sur entrée pour relancer le jeu, et echap pour retourner au menu."
