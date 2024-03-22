@@ -1,406 +1,174 @@
-import constantes as c
-import fonctions_calcul as calc
 import pygame
-import math
 
-# Modifications des paramètres principaux de la fenêtre
-pygame.display.set_caption("Astral Shooter")
-fenetre_jeu = pygame.display.set_mode((c.LARGEUR_FENETRE, c.HAUTEUR_FENETRE))
-pygame.display.set_icon(c.ICONE_JEU)
+pygame.init()
 
-# Initialisation des variables de jeu
 
-intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
+LARGEUR_FENETRE, HAUTEUR_FENETRE = 1280, 500
 
-position_x_boulet = 0
-position_y_boulet = 0
 
-position_x_tir = 0
-position_y_tir = 0
-vitesse_initiale_tir = 0
+# Import de toutes les images ##############################
 
-vitesse_initiale = c.VITESSE_BOULET_MIN
+# Elements principaux
+ICONE_JEU = pygame.image.load("elements_principaux/icone_jeu.png")
+IMAGE_DECOR_ACCUEIL = pygame.image.load("decors/decor_accueil.jpg")
+IMAGE_BOUTON_JOUER = pygame.image.load("elements_principaux/bouton_jouer.png")
+IMAGE_EFFET_BOUTON = pygame.image.load("elements_principaux/effet_bouton.png")
+IMAGE_CASE_ENCOCHE = pygame.image.load("elements_principaux/case_encoche.png")
+IMAGE_CASE_ENCOCHE_EFFET = pygame.image.load("elements_principaux/case_encoche_effet.png")
+IMAGE_ENCOCHE_VERTE = pygame.image.load("elements_principaux/encoche_verte.png")
+IMAGE_TEXTE_MODE_ON = pygame.image.load("elements_principaux/texte_mode_facile_on.png")
+IMAGE_TEXTE_MODE_OFF = pygame.image.load("elements_principaux/texte_mode_facile_off.png")
+IMAGE_TEXTE_NOM_JEU = pygame.image.load("elements_principaux/texte_nom_jeu.png")
+IMAGE_TEXTE_CLIQUEZ = pygame.image.load("elements_principaux/texte_cliquez.png")
+IMAGE_REGLES = pygame.image.load("elements_principaux/regles.png")
+IMAGE_REGLES_EFFET = pygame.image.load("elements_principaux/regles_effet.png")
+IMAGE_CROIX = pygame.image.load("elements_principaux/croix_rouge.png")
+IMAGE_CROIX_EFFET = pygame.image.load("elements_principaux/croix_rouge_effet.png")
 
-angle_rotation = -c.ANGLE_ROTATION_INITAL
 
-temps_debut_explosion = 0
-coordonnees_explosion = 0, 0
+# Decors
+IMAGE_DECOR_TERRE = pygame.image.load("decors/decor_type_terre.jpg")
 
 
+# Elements decors
+IMAGE_CANON_SANS_ROUE = pygame.image.load("elements_decor/canon_sans_roue.png")
+IMAGE_ROUE_CANON = pygame.image.load("elements_decor/roue_canon.png")
+IMAGE_BOULET_CANON = pygame.image.load("elements_decor/boulet_canon.png")
+IMAGE_JAUGE_TIR = pygame.image.load("elements_decor/jauge.png")
+IMAGE_FLECHE_JAUGE = pygame.image.load("elements_decor/fleche_jauge.png")
+IMAGE_EXPLOSION = pygame.image.load("elements_decor/explosion.png")
+IMAGE_COEUR_ROUGE = pygame.image.load("elements_decor/coeur_rouge.png")
+IMAGE_COEUR_NOIR = pygame.image.load("elements_decor/coeur_noir.png")
+IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
 
-en_tir = False
-en_animation_tir = False
 
-en_explosion = False
+# Valeurs constantes
 
-nombre_clic_en_jeu = 0
-tir_possible = False
+# Principales
 
-mode_facile = False
+IPS = 60
 
-regles_affichees = False
+TEXTE_NOM_JEU_RECT = IMAGE_TEXTE_NOM_JEU.get_rect()
+TEXTE_NOM_JEU_RECT.center = LARGEUR_FENETRE / 2, 110
 
-en_execution = True
-en_jeu = False
+DIMENSION_IMAGE_BOUTON = 150
 
+DECALAGE_BOUTON_HAUT = HAUTEUR_FENETRE / 2 + 65
 
-# Fonctions d'affichage
+TEXTE_CLIQUEZ_RECT = IMAGE_TEXTE_CLIQUEZ.get_rect()
+TEXTE_CLIQUEZ_RECT.center = LARGEUR_FENETRE / 2, DECALAGE_BOUTON_HAUT + DIMENSION_IMAGE_BOUTON / 2 + 50
 
-def actualisation_jeu(position_x, position_y):
-    """
-    Actualise l'affichage du jeu en fonction des événements en cours.
+BOUTON_JOUER_RECT = IMAGE_BOUTON_JOUER.get_rect()
+BOUTON_JOUER_RECT.center = LARGEUR_FENETRE / 2, DECALAGE_BOUTON_HAUT
 
-    :param position_x: La coordonnée x de la position de la souris.
-    :param position_y: La coordonnée y de la position de la souris.
-    :return: None
-    """
-    global position_x_boulet, position_y_boulet
-    global position_x_tir, position_y_tir, vitesse_initiale_tir
-    global en_animation_tir, en_explosion
-    global temps_debut_explosion
-    global coordonnees_explosion
-    global vitesse_initiale, vitesse_initiale_tir
-    global angle_rotation
-    global nombre_vies_actuel
+EFFET_BOUTON_RECT = IMAGE_EFFET_BOUTON.get_rect()
+EFFET_BOUTON_RECT.center = BOUTON_JOUER_RECT.center
 
-    # Affichage du décor de la Terre
-    fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
+LARGEUR_ENCOCHE, HAUTEUR_ENCOCHE = 40, 34
 
-    # Rotation de l'image du canon
-    image_canon_pivote = pygame.transform.rotate(c.IMAGE_CANON_SANS_ROUE,
-                                                 math.degrees(calc.angle_tir_canon(position_x, position_y)))
+LARGEUR_TEXTE_MODE_FACILE = 217
 
-    # Obtention du rectangle englobant du canon
-    canon_pivote_rect = image_canon_pivote.get_rect(center=c.POSTION_CENTRE_CANON_SANS_ROUE)
+ENCOCHE_RECT = IMAGE_CASE_ENCOCHE.get_rect()
+ENCOCHE_RECT.x, ENCOCHE_RECT.y = 20, HAUTEUR_FENETRE - (HAUTEUR_ENCOCHE + 10)
 
-    # Affichage du nombre de vies restantes
-    somme_decalage_coeur = c.POS_X_DERNIER_COEUR
-    for indice_coeur_noir in range(c.NOMBRE_VIES_INITIAL - nombre_vies_actuel):
-        fenetre_jeu.blit(c.IMAGE_COEUR_NOIR, (somme_decalage_coeur, c.POS_Y_COEUR))
-        somme_decalage_coeur -= c.DECALAGE_COEUR
+ENCOCHE_EFFET_RECT = IMAGE_CASE_ENCOCHE_EFFET.get_rect()
+ENCOCHE_EFFET_RECT.center = ENCOCHE_RECT.center
 
-    for indice_coeur_rouge in range(nombre_vies_actuel):
-        fenetre_jeu.blit(c.IMAGE_COEUR_ROUGE, (somme_decalage_coeur, c.POS_Y_COEUR))
-        somme_decalage_coeur -= c.DECALAGE_COEUR
+TEXTE_MODE_FACILE_RECT = IMAGE_TEXTE_MODE_ON.get_rect()
+TEXTE_MODE_FACILE_RECT.center = LARGEUR_TEXTE_MODE_FACILE / 2 + LARGEUR_ENCOCHE + 6, ENCOCHE_RECT.center[1] - 1
 
-    # Affichage du personnage
-    fenetre_jeu.blit(c.IMAGE_PERSONNAGE, c.PERSONNAGE_RECT)
+DIMENSION_IMAGE_REGLES = 115
 
-    # Affichage du canon pivoté et de la roue du canon
-    fenetre_jeu.blit(image_canon_pivote, canon_pivote_rect)
-    fenetre_jeu.blit(c.IMAGE_ROUE_CANON, (c.POS_X_ROUE_CANON, c.POS_Y_ROUE_CANON))
+REGLES_RECT = IMAGE_REGLES.get_rect()
+REGLES_RECT.bottomright = LARGEUR_FENETRE - 2, HAUTEUR_FENETRE
 
-    # Affichage de la jauge de tir et pivotement de la flèche de la jauge
-    fenetre_jeu.blit(c.IMAGE_JAUGE_TIR, (c.DECALAGE_JAUGE, c.DECALAGE_JAUGE))
-    pivoter_fleche_jauge()
+SURFACE_REGLES_RECT = pygame.Rect(40, 30, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 60)
 
-    # Affichage de la trajectoire anticipée si le mode de jeu est facile
-    if mode_facile:
-        trajectoire_mode_facile(position_x, position_y)
+DIMENSION_CROIX_ROUGE = 40
 
-    # Si une animation de tir est en cours
-    if en_animation_tir:
-        # Calcul de l'angle de tir
-        angle_tir = calc.angle_tir_canon(position_x_tir, position_y_tir)
-
-        # Calcul des coordonnées du centre de la bouche du canon
-        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon =\
-            c.POSTION_CENTRE_CANON_SANS_ROUE[0] + c.RAYON_CANON_TIR * math.cos(angle_tir),\
-            c.POSTION_CENTRE_CANON_SANS_ROUE[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
-
-        # Calcul de la nouvelle position du boulet
-        position_x_boulet += vitesse_initiale_tir / c.DIVISEUR_VITESSE
-        position_y_boulet = calc.fonction_trajectoire(position_x_boulet, angle_tir, vitesse_initiale_tir,
-                                                      intensite_pesanteur)
-
-        # Création du rectangle englobant du boulet
-        boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
-        boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET,\
-            pos_y_centre_bouche_canon - position_y_boulet
-
-        # Si le boulet ne collisionne pas avec un obstacle
-        if not calc.en_collision_boulet(boulet_canon_rect):
-            # Affichage du boulet
-            fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
-        else:
-            # Si le boulet collisionne avec le personnage
-            if boulet_canon_rect.colliderect(c.PERSONNAGE_RECT):
-                # Réduction du nombre de vies
-                nombre_vies_actuel -= 1
-
-                # Si plus de vies restantes, game over
-                if nombre_vies_actuel == 0:
-                    game_over()
-
-            # Réinitialisation des paramètres après une collision
-            position_x_boulet = 0
-            position_y_boulet = 0
-
-            position_x_tir = 0
-            position_y_tir = 0
-            vitesse_initiale_tir = 0
-
-            vitesse_initiale = c.VITESSE_BOULET_MIN
-
-            angle_rotation = -c.ANGLE_ROTATION_INITAL
-
-            en_animation_tir = False
-            en_explosion = True
-
-            coordonnees_explosion = boulet_canon_rect.center
-            temps_debut_explosion = pygame.time.get_ticks()
-
-    # Si une explosion est en cours
-    if en_explosion:
-        # Si le temps écoulé depuis le début de l'explosion est inférieur à la durée définie
-        if pygame.time.get_ticks() - temps_debut_explosion < c.DUREE_EXPLOSION:
-            # Affichage de l'explosion
-            explosion_rect = c.IMAGE_EXPLOSION.get_rect()
-            explosion_rect.center = coordonnees_explosion
-            fenetre_jeu.blit(c.IMAGE_EXPLOSION, explosion_rect)
-        else:
-            # Fin de l'explosion
-            en_explosion = False
-            temps_debut_explosion = 0
-
-
-def affichage_accueil(position_x, position_y):
-    """
-    Affiche l'écran d'accueil du jeu.
-
-    :param position_x: La coordonnée x de la position de la souris.
-    :param position_y: La coordonnée y de la position de la souris.
-    :return: None
-    """
-    global mode_facile
-
-    # Affichage des éléments de l'écran d'accueil
-    fenetre_jeu.blit(c.IMAGE_DECOR_ACCUEIL, (0, 0))
-    fenetre_jeu.blit(c.IMAGE_TEXTE_NOM_JEU, c.TEXTE_NOM_JEU_RECT)
-    fenetre_jeu.blit(c.IMAGE_TEXTE_CLIQUEZ, c.TEXTE_CLIQUEZ_RECT)
-
-    if not regles_affichees:
-        # Affichage du mode de jeu (facile ou normal) avec le texte et l'encoche associés
-        if mode_facile:
-            fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, (c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y))
-            fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_ON, c.TEXTE_MODE_FACILE_RECT)
-        else:
-            fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_OFF, c.TEXTE_MODE_FACILE_RECT)
-
-        # Affichage de l'encoche et du bouton de jouer avec effet au survol de la souris
-        if c.ENCOCHE_RECT.topleft[0] < position_x < c.ENCOCHE_RECT.topleft[0] + c.LARGEUR_ENCOCHE \
-                and c.ENCOCHE_RECT.topleft[1] < position_y < c.ENCOCHE_RECT.topleft[1] + c.HAUTEUR_ENCOCHE:
-            fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE_EFFET, c.ENCOCHE_EFFET_RECT)
-        else:
-            fenetre_jeu.blit(c.IMAGE_CASE_ENCOCHE, c.ENCOCHE_RECT)
-
-        if c.REGLES_RECT.topleft[0] < position_x < c.REGLES_RECT.topleft[0] + c.DIMENSION_IMAGE_REGLES \
-                and c.REGLES_RECT.topleft[1] < position_y < c.REGLES_RECT.topleft[1] + c.DIMENSION_IMAGE_REGLES:
-            fenetre_jeu.blit(c.IMAGE_REGLES_EFFET, c.REGLES_RECT)
-        else:
-            fenetre_jeu.blit(c.IMAGE_REGLES, c.REGLES_RECT)
-
-        if c.BOUTON_JOUER_RECT.topleft[0] < position_x < c.BOUTON_JOUER_RECT.topleft[0] + c.DIMENSION_IMAGE_BOUTON \
-                and c.BOUTON_JOUER_RECT.topleft[1] < position_y < c.BOUTON_JOUER_RECT.topleft[1] +\
-                c.DIMENSION_IMAGE_BOUTON:
-            fenetre_jeu.blit(c.IMAGE_EFFET_BOUTON, c.EFFET_BOUTON_RECT)
-        else:
-            fenetre_jeu.blit(c.IMAGE_BOUTON_JOUER, c.BOUTON_JOUER_RECT)
-
-    else:
-        pygame.draw.rect(fenetre_jeu, "white", c.SURFACE_REGLES_RECT)
-        pygame.draw.rect(fenetre_jeu, "black", c.SURFACE_REGLES_RECT, 3)
-
-        fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.REGLES, True, "black"), c.COORDONNEES_TEXTE_REGLES)
-
-        if c.CROIX_RECT.topleft[0] < position_x < c.CROIX_RECT.topleft[0] + c.DIMENSION_CROIX_ROUGE \
-                and c.CROIX_RECT.topleft[1] < position_y < c.CROIX_RECT.topleft[1] + c.DIMENSION_CROIX_ROUGE:
-            fenetre_jeu.blit(c.IMAGE_CROIX_EFFET, c.CROIX_EFFET_RECT)
-        else:
-            fenetre_jeu.blit(c.IMAGE_CROIX, c.CROIX_RECT)
-
-
-def trajectoire_mode_facile(position_x, position_y):
-    """
-    Affiche la trajectoire anticipée du boulet en mode facile.
-
-    :param position_x: La coordonnée x de la position du joueur.
-    :param position_y: La coordonnée y de la position du joueur.
-    :return: None
-    """
-    # Si un tir est en cours
-    if en_tir:
-        # Calcul de l'angle de tir
-        angle_tir = calc.angle_tir_canon(position_x, position_y)
-
-        # Calcul des coordonnées du centre de la bouche du canon
-        pos_x_centre_bouche_canon, pos_y_centre_bouche_canon = \
-            c.POSTION_CENTRE_CANON_SANS_ROUE[0] + c.RAYON_CANON_TIR * math.cos(angle_tir), \
-            c.POSTION_CENTRE_CANON_SANS_ROUE[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
-
-        # Pour chaque marqueur de trajectoire
-        for position_x_marqueur in range(c.POS_DEBUT_MARQUEUR_TRAJ, c.POS_FIN_MARQUEUR_TRAJ, c.AJOUT_POS_MARQUEUR_TRAJ):
-            # Calcul de la position en y du marqueur de trajectoire
-            position_y_marqueur = calc.fonction_trajectoire(position_x_marqueur, angle_tir, vitesse_initiale,
-                                                            intensite_pesanteur)
-
-            # Dessin du marqueur de trajectoire
-            pygame.draw.circle(fenetre_jeu, "yellow", (position_x_marqueur + pos_x_centre_bouche_canon,
-                                                       pos_y_centre_bouche_canon - position_y_marqueur),
-                               c.LARGEUR_MARQUEUR_TRAJECTOIRE)
-
-            # Dessin du contour du marqueur de trajectoire
-            pygame.draw.circle(fenetre_jeu, "black", (position_x_marqueur + pos_x_centre_bouche_canon,
-                                                      pos_y_centre_bouche_canon - position_y_marqueur),
-                               c.LARGEUR_MARQUEUR_TRAJECTOIRE, 1)
-
-
-def pivoter_fleche_jauge():
-    """
-    Pivoter la flèche de la jauge de tir.
-
-    :return: None
-    """
-    global angle_rotation
-
-    # Si le jeu n'est pas en animation de tir
-    if not en_animation_tir:
-        # Si le joueur tire et l'angle de rotation est inférieur au maximum autorisé
-        if en_tir and angle_rotation >= -c.ANGLE_ROTATION_MAXIMAL:
-            # Calcul de l'angle de rotation en fonction de la vitesse du boulet
-            angle_rotation -= (c.ANGLE_ROTATION_MAXIMAL - c.ANGLE_ROTATION_INITAL) * c.INCREMENTATION_VITESSE / \
-                              (c.VITESSE_BOULET_MAX - c.VITESSE_BOULET_MIN)
-    # Si le jeu est en animation de tir
-    else:
-        # Si l'angle de rotation est inférieur à l'angle limite de diminution
-        if angle_rotation < c.ANGLE_LIMITE_DIMINUTION:
-            # Diminution de l'angle de rotation
-            angle_rotation += c.DIMINUTION_FLECHE_JAUGE
-        else:
-            # Réinitialisation de l'angle de rotation
-            angle_rotation = -c.ANGLE_ROTATION_INITAL
-
-    # Rotation de l'image de la flèche
-    image_fleche_pivote = pygame.transform.rotate(c.IMAGE_FLECHE_JAUGE, angle_rotation)
-    fleche_pivote_rect = image_fleche_pivote.get_rect(center=c.POSITION_CENTRE_FLECHE_JAUGE)
-
-    # Affichage de la flèche pivotée sur la fenêtre de jeu
-    fenetre_jeu.blit(image_fleche_pivote, fleche_pivote_rect)
-
-
-def game_over():
-    global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
-    global temps_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu
-    global tir_possible, en_jeu, mode_facile, regles_affichees
-
-    intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
-
-    position_x_boulet = 0
-    position_y_boulet = 0
-
-    position_x_tir = 0
-    position_y_tir = 0
-    vitesse_initiale_tir = 0
-
-    vitesse_initiale = c.VITESSE_BOULET_MIN
-
-    angle_rotation = -c.ANGLE_ROTATION_INITAL
-
-    temps_debut_explosion = 0
-    coordonnees_explosion = 0, 0
-
-    nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
-
-    en_tir = False
-    en_animation_tir = False
-
-    en_explosion = False
-
-    nombre_clic_en_jeu = 0
-    tir_possible = False
-
-    mode_facile = False
-
-    regles_affichees = False
-
-    en_jeu = False
-
-
-while en_execution:
-    # Obtenir les coordonnées de la souris
-    position_souris_x, position_souris_y = pygame.mouse.get_pos()
-
-    # Si le jeu est en cours
-    if en_jeu:
-        # Actualiser le jeu en fonction des coordonnées de la souris
-        actualisation_jeu(position_souris_x, position_souris_y)
-    # Si le jeu n'est pas en cours
-    else:
-        # Afficher l'écran d'accueil en fonction des coordonnées de la souris
-        affichage_accueil(position_souris_x, position_souris_y)
-
-    # Si le bouton gauche de la souris est enfoncé
-    if pygame.mouse.get_pressed()[0]:
-        # Si le jeu n'est pas en animation de tir et la vitesse initiale est inférieure à la
-        # vitesse maximale et un tir est possible
-        if not en_animation_tir and vitesse_initiale < c.VITESSE_BOULET_MAX and tir_possible:
-            # Activer le tir
-            en_tir = True
-            # Incrémenter la vitesse initiale du boulet
-            vitesse_initiale += c.INCREMENTATION_VITESSE
-
-    # Mettre à jour l'affichage
-    pygame.display.flip()
-
-    # Gérer les événements pygame
-    for event in pygame.event.get():
-        # Si l'événement est de fermer la fenêtre
-        if event.type == pygame.QUIT:
-            # Mettre fin à l'exécution du jeu
-            en_execution = False
-            pygame.quit()
-
-        # Si un bouton de la souris est enfoncé
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            # Si le jeu n'est pas en cours
-            if not en_jeu:
-                if not regles_affichees:
-                    # Si le bouton "Jouer" est cliqué
-                    if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
-                        # Commencer le jeu
-                        en_jeu = True
-                        if mode_facile:
-                            c.NOMBRE_VIES_INITIAL += 2
-                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
-                    # Si la case d'encoche pour le mode facile est cliquée
-                    elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
-                        # Inverser le mode de difficulté
-                        mode_facile = not mode_facile
-
-                    elif c.REGLES_RECT.collidepoint(event.pos):
-                        regles_affichees = True
-
-                elif c.CROIX_RECT.collidepoint(event.pos):
-                    regles_affichees = False
-
-        # Si un bouton de la souris est relâché et le jeu est en cours
-        elif en_jeu and event.type == pygame.MOUSEBUTTONUP:
-            # Incrémenter le nombre de clics en jeu
-            nombre_clic_en_jeu += 1
-
-            # Si un tir est possible et le jeu n'est pas en animation de tir
-            if tir_possible and not en_animation_tir:
-                # Début de l'animation de tir
-                en_animation_tir = True
-                en_tir = False
-
-                # Enregistrer les coordonnées de tir et la vitesse initiale du tir
-                position_x_tir, position_y_tir = position_souris_x, position_souris_y
-                vitesse_initiale_tir = vitesse_initiale * c.MULTIPLICATEUR_VITESSE
-            else:
-                # Si le nombre de clics en jeu est supérieur à 0, un tir est possible
-                if nombre_clic_en_jeu > 0:
-                    tir_possible = True
-
-    # Régler le nombre d'images par seconde
-    pygame.time.Clock().tick(c.IPS)
+CROIX_RECT = IMAGE_CROIX.get_rect()
+CROIX_RECT.center = SURFACE_REGLES_RECT.topright[0] - 30, SURFACE_REGLES_RECT.topright[1] + 30
+
+CROIX_EFFET_RECT = IMAGE_CROIX_EFFET.get_rect()
+CROIX_EFFET_RECT.center = CROIX_RECT.center
+
+COORDONNEES_TEXTE_REGLES = SURFACE_REGLES_RECT.topleft[0] + 20, SURFACE_REGLES_RECT.topleft[1] + 10
+
+POLICE_TEXTE_REGLES = pygame.font.SysFont('Comic Sans MS', 25)
+
+REGLES = "Ce sont les règles du jeu. (pour le moment)"
+
+
+
+# En jeu
+
+INTENSITE_PESANTEUR_TERRE = 9.81
+
+
+DECALAGE_X_CANON = 25
+
+LARGEUR_IMAGE_CANON = 175
+POS_X_CANON = DECALAGE_X_CANON - LARGEUR_IMAGE_CANON / 4 - 10
+POS_Y_CANON = HAUTEUR_FENETRE - LARGEUR_IMAGE_CANON + 25
+
+CANON_SANS_ROUE_RECT = IMAGE_CANON_SANS_ROUE.get_rect()
+CANON_SANS_ROUE_RECT.x, CANON_SANS_ROUE_RECT.y = POS_X_CANON, POS_Y_CANON
+POSTION_CENTRE_CANON_SANS_ROUE = CANON_SANS_ROUE_RECT.center
+
+VITESSE_BOULET_MIN = 60
+VITESSE_BOULET_MAX = 140
+INCREMENTATION_VITESSE = 0.83
+MULTIPLICATEUR_VITESSE = 1.2
+
+DIVISEUR_VITESSE = 5
+
+DECALAGE_BOULET = 10
+
+POS_X_ROUE_CANON = DECALAGE_X_CANON + 30
+POS_Y_ROUE_CANON = HAUTEUR_FENETRE - 80
+
+ANGLE_TIR_MINIMAL = 0.2
+ANGLE_TIR_MAXIMAL = 1.1
+
+RAYON_CANON_TIR = LARGEUR_IMAGE_CANON / 2 - 13
+
+DECALAGE_JAUGE = 20
+
+ANGLE_LIMITE_DIMINUTION = -5
+
+ANGLE_ROTATION_INITAL = 1
+ANGLE_ROTATION_MAXIMAL = 177
+
+FLECHE_JAUGE_RECT = IMAGE_FLECHE_JAUGE.get_rect()
+FLECHE_JAUGE_RECT.x, FLECHE_JAUGE_RECT.y = DECALAGE_JAUGE, DECALAGE_JAUGE
+POSITION_CENTRE_FLECHE_JAUGE = FLECHE_JAUGE_RECT.center
+
+DIMINUTION_FLECHE_JAUGE = 10
+
+HAUTEUR_SOL_COLLISION = HAUTEUR_FENETRE - 50
+SOL_RECT = pygame.Rect(0, HAUTEUR_SOL_COLLISION, LARGEUR_FENETRE, HAUTEUR_FENETRE)
+
+LARGEUR_MUR_COLLISION = LARGEUR_FENETRE + 60
+MUR_RECT = pygame.Rect(LARGEUR_FENETRE, 0, LARGEUR_MUR_COLLISION, HAUTEUR_FENETRE)
+
+DUREE_EXPLOSION = 200
+
+NOMBRE_VIES_INITIAL = 3
+
+LARGEUR_COEUR = 30
+POS_X_DERNIER_COEUR = LARGEUR_FENETRE - LARGEUR_COEUR - 25
+POS_Y_COEUR = 20
+DECALAGE_COEUR = LARGEUR_COEUR + 10
+
+LARGEUR_PERSONNAGE = 29
+HAUTEUR_PERSONNAGE = 140
+PERSONNAGE_RECT = IMAGE_PERSONNAGE.get_rect()
+PERSONNAGE_RECT.x, PERSONNAGE_RECT.y = LARGEUR_FENETRE - 45 - LARGEUR_PERSONNAGE,\
+    HAUTEUR_FENETRE + HAUTEUR_SOL_COLLISION - HAUTEUR_FENETRE - HAUTEUR_PERSONNAGE
+
+LARGEUR_MARQUEUR_TRAJECTOIRE = 5
+POS_DEBUT_MARQUEUR_TRAJ = 10
+AJOUT_POS_MARQUEUR_TRAJ = 30
+POS_FIN_MARQUEUR_TRAJ = 350
+
+MENU_PAUSE = "Pause. Appuyez sur entrée pour relancer le jeu, et echap pour retourner au menu."
