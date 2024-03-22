@@ -48,6 +48,8 @@ IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
 
 # Principales
 
+POLICE_JEU = "Century Gothic"
+
 IPS = 60
 
 TEXTE_NOM_JEU_RECT = IMAGE_TEXTE_NOM_JEU.get_rect()
@@ -98,10 +100,10 @@ COORDONNEES_TEXTE_REGLES = SURFACE_REGLES_RECT.topleft[0] + 20, SURFACE_REGLES_R
 
 HAUTEUR_TEXTE_REGLES = 25
 
-POLICE_TEXTE_REGLES = pygame.font.SysFont('Comic Sans MS', HAUTEUR_TEXTE_REGLES)
+POLICE_TEXTE_REGLES = pygame.font.SysFont(POLICE_JEU, HAUTEUR_TEXTE_REGLES)
 
 TEXTE_REGLES = ["Ce sont les règles du jeu. (pour le moment)",
-                "test"
+                ""
                 ]
 
 
@@ -181,7 +183,7 @@ COORDONNEES_TEXTE_PAUSE = 415, 395
 
 HAUTEUR_TEXTE_MENU_PAUSE = 18
 
-POLICE_TEXTE_MENU_PAUSE = pygame.font.SysFont('Century Gothic', HAUTEUR_TEXTE_MENU_PAUSE)
+POLICE_TEXTE_MENU_PAUSE = pygame.font.SysFont(POLICE_JEU, HAUTEUR_TEXTE_MENU_PAUSE)
 
 TEXTE_MENU_PAUSE = ["Le jeu est en pause.",
                     "- Appuyez sur Entrée pour relancer le jeu",

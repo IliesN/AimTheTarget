@@ -1,5 +1,5 @@
 import constantes_test as c
-import fonctions_calcul as calc
+import fonctions_calcul_test as calc
 import pygame
 import math
 

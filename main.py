@@ -217,7 +217,10 @@ def affichage_accueil(position_x, position_y):
         pygame.draw.rect(fenetre_jeu, "white", c.SURFACE_REGLES_RECT)
         pygame.draw.rect(fenetre_jeu, "black", c.SURFACE_REGLES_RECT, 3)
 
-        fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.REGLES, True, "black"), c.COORDONNEES_TEXTE_REGLES)
+        for indice_ligne_regles in range(len(c.TEXTE_REGLES)):
+            fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.TEXTE_REGLES[indice_ligne_regles], True, "black"),
+                             (c.COORDONNEES_TEXTE_REGLES[0],
+                              c.COORDONNEES_TEXTE_REGLES[1] + (c.HAUTEUR_TEXTE_REGLES + 3) * indice_ligne_regles))
 
         if c.CROIX_RECT.topleft[0] < position_x < c.CROIX_RECT.topleft[0] + c.DIMENSION_CROIX_ROUGE \
                 and c.CROIX_RECT.topleft[1] < position_y < c.CROIX_RECT.topleft[1] + c.DIMENSION_CROIX_ROUGE:
@@ -338,11 +341,7 @@ while en_execution:
 
     # Si le jeu est en cours
     if en_jeu:
-        if en_pause:
-            fenetre_jeu.blit(c.IMAGE_FOND_PAUSE, c.FOND_PAUSE_RECT)
-
-            fenetre_jeu.blit(c.POLICE_TEXTE_REGLES.render(c.MENU_PAUSE, True, "white"), c.COORDONNEES_TEXTE_REGLES)
-        else:
+        if not en_pause:
             # Actualiser le jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
 
@@ -421,6 +420,15 @@ while en_execution:
 
             if event.key == pygame.K_RETURN:
                 en_pause = not en_pause
+
+                if en_pause:
+                    fenetre_jeu.blit(c.IMAGE_FOND_PAUSE, (0, 0))
+                    print("yes")
+                    for indice_ligne_pause in range(len(c.TEXTE_MENU_PAUSE)):
+                        fenetre_jeu.blit(c.POLICE_TEXTE_MENU_PAUSE.render(c.TEXTE_MENU_PAUSE[indice_ligne_pause],
+                                                                          True, "white"),
+                                         (c.COORDONNEES_TEXTE_PAUSE[0], c.COORDONNEES_TEXTE_PAUSE[1] +
+                                          (c.HAUTEUR_TEXTE_MENU_PAUSE + 7) * indice_ligne_pause))
 
             elif en_pause and event.key == pygame.K_ESCAPE:
                 game_over()
