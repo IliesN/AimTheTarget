@@ -1,4 +1,4 @@
-import constantes_test as c
+import constantes as c
 import fonctions_calcul as calc
 import pygame
 import math
@@ -26,7 +26,7 @@ angle_rotation = -c.ANGLE_ROTATION_INITAL
 temps_debut_explosion = 0
 coordonnees_explosion = 0, 0
 
-nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
+
 
 en_tir = False
 en_animation_tir = False
@@ -369,6 +369,9 @@ while en_execution:
                     if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
                         # Commencer le jeu
                         en_jeu = True
+                        if mode_facile:
+                            c.NOMBRE_VIES_INITIAL += 2
+                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL
                     # Si la case d'encoche pour le mode facile est cliquée
                     elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
                         # Inverser le mode de difficulté
