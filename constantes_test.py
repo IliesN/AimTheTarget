@@ -42,6 +42,7 @@ IMAGE_EXPLOSION = pygame.image.load("elements_decor/explosion.png")
 IMAGE_COEUR_ROUGE = pygame.image.load("elements_decor/coeur_rouge.png")
 IMAGE_COEUR_NOIR = pygame.image.load("elements_decor/coeur_noir.png")
 IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
+IMAGE_METEORITE = pygame.image.load("elements_decor/meteorite.png")
 
 
 # Valeurs constantes
@@ -173,6 +174,11 @@ HAUTEUR_PERSONNAGE = 140
 PERSONNAGE_RECT = IMAGE_PERSONNAGE.get_rect()
 PERSONNAGE_RECT.x, PERSONNAGE_RECT.y = LARGEUR_FENETRE - 45 - LARGEUR_PERSONNAGE,\
     HAUTEUR_FENETRE + HAUTEUR_SOL_COLLISION - HAUTEUR_FENETRE - HAUTEUR_PERSONNAGE
+
+METEORITE_RECT = IMAGE_METEORITE.get_rect()
+METEORITE_RECT.x, METEORITE_RECT.y = 600, 100
+DIMENSION_METEORITE = 28
+CAILLOU_METEORITE_RECT = pygame.Rect(0, 0, DIMENSION_METEORITE, DIMENSION_METEORITE)
 
 LARGEUR_MARQUEUR_TRAJECTOIRE = 5
 POS_DEBUT_MARQUEUR_TRAJ = 10

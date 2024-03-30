@@ -92,6 +92,9 @@ def actualisation_jeu(position_x, position_y):
     # Affichage du personnage
     fenetre_jeu.blit(c.IMAGE_PERSONNAGE, c.PERSONNAGE_RECT)
 
+    fenetre_jeu.blit(c.IMAGE_METEORITE, c.METEORITE_RECT)
+    c.CAILLOU_METEORITE_RECT.center = c.METEORITE_RECT.center
+
     # Affichage du canon pivoté et de la roue du canon
     fenetre_jeu.blit(image_canon_pivote, canon_pivote_rect)
     fenetre_jeu.blit(c.IMAGE_ROUE_CANON, (c.POS_X_ROUE_CANON, c.POS_Y_ROUE_CANON))
@@ -130,7 +133,8 @@ def actualisation_jeu(position_x, position_y):
             fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
         else:
             # Si le boulet collisionne avec le personnage
-            if boulet_canon_rect.colliderect(c.PERSONNAGE_RECT):
+            if (boulet_canon_rect.colliderect(c.PERSONNAGE_RECT) or
+                    boulet_canon_rect.colliderect(c.CAILLOU_METEORITE_RECT)):
                 # Réduction du nombre de vies
                 nombre_vies_actuel -= 1
 
