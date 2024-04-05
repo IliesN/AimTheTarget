@@ -2,6 +2,7 @@ import constantes_test as c
 import fonctions_calcul_test as calc
 import pygame
 import math
+import random
 
 # Modifications des paramètres principaux de la fenêtre
 pygame.display.set_caption("Astral Shooter")
@@ -43,8 +44,57 @@ en_jeu = False
 
 en_pause = False
 
+nombre_meteorites_actuel = 0
+
+liste_meteorites = []
 
 # Fonctions d'affichage
+
+
+def actualiser_pos_meteorite(tuple_meteorite):
+
+
+
+
+    pass
+
+
+def creer_meteorite():
+    positions_x_initiales = []
+    for meteorite in liste_meteorites:
+        positions_x_initiales.append(meteorite[0][0])
+
+    position_x_meteorite = random.choice([
+        position_x
+        for position_x in range(c.INTERVALLE_POS_X_METEORITES[0], c.INTERVALLE_POS_X_METEORITES[1],
+                                c.DIMENSION_METEORITE)
+        if position_x not in positions_x_initiales
+    ])
+
+    meteorite_rect = c.IMAGE_METEORITE.get_rect()
+    meteorite_rect.x, meteorite_rect.y = (position_x_meteorite, c.POS_Y_METEORITES)
+
+    collision_meteorite_rect = pygame.Rect(0, 0, c.DIMENSION_METEORITE, c.DIMENSION_METEORITE)
+    collision_meteorite_rect.center = meteorite_rect.center
+
+    coefficient_directeur_traj = (c.PERSONNAGE_RECT.center[1] - c.POS_Y_METEORITES) / \
+                                 (c.PERSONNAGE_RECT.center[0] - position_x_meteorite)
+
+    liste_meteorites.append([
+        (position_x_meteorite, c.POS_Y_METEORITES),  # Coordonnées initiales
+
+        meteorite_rect,  # Rect correspondant à la météorite
+        collision_meteorite_rect,  # Rect correspondant à la zone de collision de la météorite
+
+        lambda pos_x: coefficient_directeur_traj * pos_x  # Petite fonction lambda permettant de créer une trajectoire
+        # spécifique à chaque météorite, allant toujours de la position initale vers le centre du personnage
+
+        [0, 0],  # Coordonnées actuelles de la météorite
+
+        True  # Booléen permettant de savoir si la météorite est en vol
+        ]
+    )
+
 
 def actualisation_jeu(position_x, position_y):
     """
@@ -92,9 +142,6 @@ def actualisation_jeu(position_x, position_y):
     # Affichage du personnage
     fenetre_jeu.blit(c.IMAGE_PERSONNAGE, c.PERSONNAGE_RECT)
 
-    fenetre_jeu.blit(c.IMAGE_METEORITE, c.METEORITE_RECT)
-    c.CAILLOU_METEORITE_RECT.center = c.METEORITE_RECT.center
-
     # Affichage du canon pivoté et de la roue du canon
     fenetre_jeu.blit(image_canon_pivote, canon_pivote_rect)
     fenetre_jeu.blit(c.IMAGE_ROUE_CANON, (c.POS_X_ROUE_CANON, c.POS_Y_ROUE_CANON))
@@ -133,8 +180,7 @@ def actualisation_jeu(position_x, position_y):
             fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
         else:
             # Si le boulet collisionne avec le personnage
-            if (boulet_canon_rect.colliderect(c.PERSONNAGE_RECT) or
-                    boulet_canon_rect.colliderect(c.CAILLOU_METEORITE_RECT)):
+            if boulet_canon_rect.colliderect(c.PERSONNAGE_RECT):
                 # Réduction du nombre de vies
                 nombre_vies_actuel -= 1
 

@@ -54,6 +54,5 @@ def en_collision_boulet(boulet_canon_rect):
     """
     # Vérifie si le boulet canon est en collision avec le sol, un mur ou le personnage
     return (boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT) or
-            boulet_canon_rect.colliderect(c.PERSONNAGE_RECT) or boulet_canon_rect.colliderect(c.CAILLOU_METEORITE_RECT)
-
+            boulet_canon_rect.colliderect(c.PERSONNAGE_RECT)
             )
