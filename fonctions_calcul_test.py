@@ -43,16 +43,3 @@ def angle_tir_canon(position_x, position_y):
         angle_tir = c.ANGLE_TIR_MAXIMAL
 
     return angle_tir
-
-
-def en_collision_boulet(boulet_canon_rect):
-    """
-    Vérifie si un boulet canon est en collision avec des éléments du jeu.
-
-    :param boulet_canon_rect: Le rectangle représentant le boulet canon.
-    :return: True si le boulet canon est en collision avec le sol, un mur ou le personnage, False sinon.
-    """
-    # Vérifie si le boulet canon est en collision avec le sol, un mur ou le personnage
-    return (boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT) or
-            boulet_canon_rect.colliderect(c.PERSONNAGE_RECT)
-            )
