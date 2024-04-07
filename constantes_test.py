@@ -27,6 +27,8 @@ IMAGE_CROIX_EFFET = pygame.image.load("elements_principaux/croix_rouge_effet.png
 
 IMAGE_FOND_PAUSE = pygame.image.load("elements_principaux/menu_pause.png")
 
+IMAGE_FOND_MENUS = pygame.image.load("elements_principaux/fond_menus.png")
+
 
 # Decors
 IMAGE_DECOR_TERRE = pygame.image.load("decors/decor_type_terre.jpg")
@@ -43,6 +45,7 @@ IMAGE_COEUR_ROUGE = pygame.image.load("elements_decor/coeur_rouge.png")
 IMAGE_COEUR_NOIR = pygame.image.load("elements_decor/coeur_noir.png")
 IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
 IMAGE_METEORITE = pygame.image.load("elements_decor/meteorite.png")
+IMAGE_BLESSURE = pygame.image.load("elements_decor/blessure.png")
 
 
 # Valeurs constantes
@@ -187,6 +190,8 @@ LARGEUR_MARQUEUR_TRAJECTOIRE = 5
 POS_DEBUT_MARQUEUR_TRAJ = 10
 AJOUT_POS_MARQUEUR_TRAJ = 30
 POS_FIN_MARQUEUR_TRAJ = 350
+
+RECUL_BLESSURE = 25
 
 COORDONNEES_TEXTE_PAUSE = 415, 395
 
