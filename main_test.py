@@ -59,7 +59,7 @@ def initaliser_variables_jeu():
 
 def actualiser_pos_meteorite(composants_meteorite):
     nouvelle_pos_x = composants_meteorite["coordonnees_actuelles"][0] + c.VITESSE_METEORITE
-    nouvelle_pos_y = composants_meteorite["trajectoire"](nouvelle_pos_x)
+    nouvelle_pos_y = int(composants_meteorite["trajectoire"](nouvelle_pos_x))
 
     composants_meteorite["coordonnees_actuelles"] = [nouvelle_pos_x, nouvelle_pos_y]
 
@@ -103,8 +103,9 @@ def creer_meteorite():
         "rect_meteorite": meteorite_rect,  # Rect correspondant à la météorite
         "rect_zone_collision": collision_meteorite_rect,  # Rect correspondant à la zone de collision de la météorite
 
-        "trajectoire": lambda pos_x: coefficient_directeur_traj * pos_x,  # Calculer la trajectoire de chaque meteorite
-        # allant de leur position initale vers le centre du personnage
+        "trajectoire": lambda pos_x: coefficient_directeur_traj * pos_x +
+        c.POS_Y_METEORITES - coefficient_directeur_traj * position_x_meteorite,
+        # Calculer la trajectoire de chaque meteorite allant de leur position initale vers le centre du personnage
 
         "coordonnees_actuelles": [position_x_meteorite, c.POS_Y_METEORITES],  # Coordonnées actuelles de la météorite
 
@@ -144,8 +145,8 @@ def actualisation_jeu(position_x, position_y):
     # Affichage du nombre de vies restantes
     somme_decalage_coeur = c.POS_X_DERNIER_COEUR
 
-    if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule and len(liste_meteorites) < c.NOMBRE_METEORITES_NIVEAU_1:
-        print("hey")
+    if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule \
+            and len(liste_meteorites) < c.NOMBRE_METEORITES_NIVEAU_1:
         creer_meteorite()
         apparition_meteorite = temps_jeu_ecoule
 
@@ -173,7 +174,8 @@ def actualisation_jeu(position_x, position_y):
     fenetre_jeu.blit(c.IMAGE_JAUGE_TIR, (c.DECALAGE_JAUGE, c.DECALAGE_JAUGE))
     pivoter_fleche_jauge()
 
-    for indice_composants_meteorite in range(len(liste_meteorites)):
+    indice_composants_meteorite = 0
+    while indice_composants_meteorite < len(liste_meteorites):
         liste_meteorites[indice_composants_meteorite] = \
             actualiser_pos_meteorite(liste_meteorites[indice_composants_meteorite])
         rect_meteorite_collision = liste_meteorites[indice_composants_meteorite]["rect_zone_collision"]
@@ -181,13 +183,15 @@ def actualisation_jeu(position_x, position_y):
             # Réduction du nombre de vies
             nombre_vies_actuel -= 1
 
+            del liste_meteorites[indice_composants_meteorite]
+
             # Si plus de vies restantes, game over
             if nombre_vies_actuel == 0:
                 initaliser_variables_jeu()
-
-            del liste_meteorites[indice_composants_meteorite]
+                break
         else:
             fenetre_jeu.blit(c.IMAGE_METEORITE, liste_meteorites[indice_composants_meteorite]["rect_meteorite"])
+            indice_composants_meteorite += 1
 
     # Affichage de la trajectoire anticipée si le mode de jeu est facile
     if mode_facile:
@@ -213,9 +217,31 @@ def actualisation_jeu(position_x, position_y):
         boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET,\
             pos_y_centre_bouche_canon - position_y_boulet
 
-        for indice_composants_meteorite in range(len(liste_meteorites)):
+        indice_composants_meteorite = 0
+        while indice_composants_meteorite < len(liste_meteorites):
             if liste_meteorites[indice_composants_meteorite]["rect_zone_collision"].colliderect(boulet_canon_rect):
                 del liste_meteorites[indice_composants_meteorite]
+
+                position_x_boulet = 0
+                position_y_boulet = 0
+
+                position_x_tir = 0
+                position_y_tir = 0
+                vitesse_initiale_tir = 0
+
+                vitesse_initiale = c.VITESSE_BOULET_MIN
+
+                angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+                en_animation_tir = False
+                en_explosion = True
+
+                coordonnees_explosion = boulet_canon_rect.center
+                horodatage_debut_explosion = pygame.time.get_ticks()
+
+                break
+            else:
+                indice_composants_meteorite += 1
 
         # Si le boulet ne collisionne pas avec un obstacle
         if not (boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT) or
