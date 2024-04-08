@@ -8,43 +8,57 @@ pygame.display.set_caption("Astral Shooter")
 fenetre_jeu = pygame.display.set_mode((c.LARGEUR_FENETRE, c.HAUTEUR_FENETRE))
 pygame.display.set_icon(c.ICONE_JEU)
 
-# Initialisation des variables de jeu
-
-intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
-
-position_x_boulet = 0
-position_y_boulet = 0
-
-position_x_tir = 0
-position_y_tir = 0
-vitesse_initiale_tir = 0
-
-vitesse_initiale = c.VITESSE_BOULET_MIN
-
-angle_rotation = -c.ANGLE_ROTATION_INITAL
-
-temps_debut_explosion = 0
-coordonnees_explosion = 0, 0
-
-en_tir = False
-en_animation_tir = False
-
-en_explosion = False
-
-nombre_clic_en_jeu = 0
-tir_possible = False
-
-mode_facile = False
-
-regles_affichees = False
-
 en_execution = True
-en_jeu = False
-
-en_pause = False
 
 
-# Fonctions d'affichage
+def initaliser_variables_jeu():
+    global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
+    global horodatage_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu, perdu
+    global tir_possible, en_jeu, mode_facile, regles_affichees, en_pause, nombre_meteorites_actuel, liste_meteorites, temps_jeu_ecoule, temps_millisecondes, apparition_meteorite, en_blessure
+
+    intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
+
+    position_x_boulet = 0
+    position_y_boulet = 0
+
+    position_x_tir = 0
+    position_y_tir = 0
+    vitesse_initiale_tir = 0
+
+    vitesse_initiale = c.VITESSE_BOULET_MIN
+
+    angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+    horodatage_debut_explosion = 0
+    coordonnees_explosion = 0, 0
+
+    en_tir = False
+    en_animation_tir = False
+
+    en_explosion = False
+    en_blessure = False
+
+    nombre_clic_en_jeu = 0
+    tir_possible = False
+
+    mode_facile = False
+
+    regles_affichees = False
+
+    en_jeu = False
+
+    perdu = False
+
+    en_pause = False
+
+    liste_meteorites = []
+
+    temps_jeu_ecoule = 0
+    temps_millisecondes = 0
+
+    nombre_meteorites_actuel = 0
+    apparition_meteorite = -1
+
 
 def actualisation_jeu(position_x, position_y):
     """
@@ -57,11 +71,16 @@ def actualisation_jeu(position_x, position_y):
     global position_x_boulet, position_y_boulet
     global position_x_tir, position_y_tir, vitesse_initiale_tir
     global en_animation_tir, en_explosion
-    global temps_debut_explosion
+    global horodatage_debut_explosion
     global coordonnees_explosion
     global vitesse_initiale, vitesse_initiale_tir
     global angle_rotation
     global nombre_vies_actuel
+    global apparition_meteorite
+    global nombre_meteorites_actuel
+    global en_blessure
+    global perdu
+    global liste_meteorites
 
     # Affichage du décor de la Terre
     fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
@@ -75,6 +94,12 @@ def actualisation_jeu(position_x, position_y):
 
     # Affichage du nombre de vies restantes
     somme_decalage_coeur = c.POS_X_DERNIER_COEUR
+
+    if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule \
+            and nombre_meteorites_actuel <= c.NOMBRE_METEORITES_NIVEAU_1:
+        liste_meteorites = calc.creer_meteorite(liste_meteorites)
+        apparition_meteorite = temps_jeu_ecoule
+        nombre_meteorites_actuel += 1
 
     if mode_facile:
         nombre_vies_initial = c.NOMBRE_VIES_INITIAL_MODE_FACILE
@@ -100,6 +125,31 @@ def actualisation_jeu(position_x, position_y):
     fenetre_jeu.blit(c.IMAGE_JAUGE_TIR, (c.DECALAGE_JAUGE, c.DECALAGE_JAUGE))
     pivoter_fleche_jauge()
 
+    indice_composants_meteorite = 0
+    while indice_composants_meteorite < len(liste_meteorites):
+        liste_meteorites[indice_composants_meteorite] = \
+            calc.actualiser_pos_meteorite(liste_meteorites[indice_composants_meteorite])
+        rect_meteorite_collision = liste_meteorites[indice_composants_meteorite]["rect_zone_collision"]
+        if rect_meteorite_collision.colliderect(c.PERSONNAGE_RECT):
+            # Réduction du nombre de vies
+            nombre_vies_actuel -= 1
+
+            coordonnees_explosion = liste_meteorites[indice_composants_meteorite]["rect_zone_collision"].center
+            horodatage_debut_explosion = pygame.time.get_ticks()
+
+            en_blessure = True
+
+            # Si plus de vies restantes, le joueur a perdu
+            if nombre_vies_actuel == 0:
+                initaliser_variables_jeu()
+                perdu = True
+                break
+
+            del liste_meteorites[indice_composants_meteorite]
+        else:
+            fenetre_jeu.blit(c.IMAGE_METEORITE, liste_meteorites[indice_composants_meteorite]["rect_meteorite"])
+            indice_composants_meteorite += 1
+
     # Affichage de la trajectoire anticipée si le mode de jeu est facile
     if mode_facile:
         trajectoire_mode_facile(position_x, position_y)
@@ -115,29 +165,47 @@ def actualisation_jeu(position_x, position_y):
             c.POSTION_CENTRE_CANON_SANS_ROUE[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
 
         # Calcul de la nouvelle position du boulet
-        position_x_boulet += vitesse_initiale_tir / c.DIVISEUR_VITESSE
-        position_y_boulet = calc.fonction_trajectoire(position_x_boulet, angle_tir, vitesse_initiale_tir,
-                                                      intensite_pesanteur)
+        position_x_boulet += vitesse_initiale_tir // c.DIVISEUR_VITESSE
+        position_y_boulet = calc.fonction_trajectoire_boulet(position_x_boulet, angle_tir, vitesse_initiale_tir,
+                                                             intensite_pesanteur)
 
         # Création du rectangle englobant du boulet
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
         boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET,\
             pos_y_centre_bouche_canon - position_y_boulet
 
+        indice_composants_meteorite = 0
+        while indice_composants_meteorite < len(liste_meteorites):
+            if liste_meteorites[indice_composants_meteorite]["rect_zone_collision"].colliderect(boulet_canon_rect):
+                del liste_meteorites[indice_composants_meteorite]
+
+                position_x_boulet = 0
+                position_y_boulet = 0
+
+                position_x_tir = 0
+                position_y_tir = 0
+                vitesse_initiale_tir = 0
+
+                vitesse_initiale = c.VITESSE_BOULET_MIN
+
+                angle_rotation = -c.ANGLE_ROTATION_INITAL
+
+                en_animation_tir = False
+                en_explosion = True
+
+                coordonnees_explosion = boulet_canon_rect.center
+                horodatage_debut_explosion = pygame.time.get_ticks()
+
+                break
+            else:
+                indice_composants_meteorite += 1
+
         # Si le boulet ne collisionne pas avec un obstacle
-        if not calc.en_collision_boulet(boulet_canon_rect):
+        if not (boulet_canon_rect.colliderect(c.SOL_RECT) or boulet_canon_rect.colliderect(c.MUR_RECT) or
+                boulet_canon_rect.colliderect(c.PERSONNAGE_RECT)):
             # Affichage du boulet
             fenetre_jeu.blit(c.IMAGE_BOULET_CANON, boulet_canon_rect)
         else:
-            # Si le boulet collisionne avec le personnage
-            if boulet_canon_rect.colliderect(c.PERSONNAGE_RECT):
-                # Réduction du nombre de vies
-                nombre_vies_actuel -= 1
-
-                # Si plus de vies restantes, game over
-                if nombre_vies_actuel == 0:
-                    game_over()
-
             # Réinitialisation des paramètres après une collision
             position_x_boulet = 0
             position_y_boulet = 0
@@ -151,23 +219,66 @@ def actualisation_jeu(position_x, position_y):
             angle_rotation = -c.ANGLE_ROTATION_INITAL
 
             en_animation_tir = False
-            en_explosion = True
 
             coordonnees_explosion = boulet_canon_rect.center
-            temps_debut_explosion = pygame.time.get_ticks()
+            horodatage_debut_explosion = pygame.time.get_ticks()
+
+            # Si le boulet collisionne avec le personnage
+            if boulet_canon_rect.colliderect(c.PERSONNAGE_RECT):
+                # Réduction du nombre de vies
+                nombre_vies_actuel -= 1
+
+                en_blessure = True
+
+                # Si plus de vies restantes, le joueur a perdu
+                if nombre_vies_actuel == 0:
+                    initaliser_variables_jeu()
+                    perdu = True
+
+            else:
+                en_explosion = True
 
     # Si une explosion est en cours
-    if en_explosion:
+    if en_explosion or en_blessure:
         # Si le temps écoulé depuis le début de l'explosion est inférieur à la durée définie
-        if pygame.time.get_ticks() - temps_debut_explosion < c.DUREE_EXPLOSION:
+        if pygame.time.get_ticks() - horodatage_debut_explosion < c.DUREE_EXPLOSION:
             # Affichage de l'explosion
-            explosion_rect = c.IMAGE_EXPLOSION.get_rect()
-            explosion_rect.center = coordonnees_explosion
-            fenetre_jeu.blit(c.IMAGE_EXPLOSION, explosion_rect)
+            if en_explosion:
+                explosion_rect = c.IMAGE_EXPLOSION.get_rect()
+                explosion_rect.center = coordonnees_explosion
+                fenetre_jeu.blit(c.IMAGE_EXPLOSION, explosion_rect)
+            elif en_blessure:
+                blessure_rect = c.IMAGE_BLESSURE.get_rect()
+                blessure_rect.center = coordonnees_explosion[0] - c.RECUL_BLESSURE, coordonnees_explosion[1]
+                fenetre_jeu.blit(c.IMAGE_BLESSURE, blessure_rect)
         else:
             # Fin de l'explosion
-            en_explosion = False
-            temps_debut_explosion = 0
+            if en_explosion:
+                en_explosion = False
+            elif en_blessure:
+                en_blessure = False
+            horodatage_debut_explosion = 0
+
+
+def affichage_menu_perdu(position_x, position_y):
+    fenetre_jeu.blit(c.IMAGE_FOND_MENUS, (0, 0))
+
+    fenetre_jeu.blit(c.IMAGE_TEXTE_ECHOUAGE, c.TEXTE_ECHOUAGE_RECT)
+    fenetre_jeu.blit(c.IMAGE_TEXTE_REESSAYER, c.TEXTE_RESSAYER_RECT)
+
+    if c.BOUTON_REESSAYER_RECT.topleft[0] < position_x < c.BOUTON_REESSAYER_RECT.topleft[0] + c.LARGEUR_BOUTON_PERDU \
+            and c.BOUTON_REESSAYER_RECT.topleft[1] < position_y < c.BOUTON_REESSAYER_RECT.topleft[1] + \
+            c.HAUTEUR_BOUTON_PERDU:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_REESSAYER_EFFET, c.BOUTON_REESSAYER_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_REESSAYER, c.BOUTON_REESSAYER_RECT)
+
+    if c.BOUTON_RETOUR_ACC_RECT.topleft[0] < position_x < c.BOUTON_RETOUR_ACC_RECT.topleft[0] + c.LARGEUR_BOUTON_PERDU \
+            and c.BOUTON_RETOUR_ACC_RECT.topleft[1] < position_y < c.BOUTON_RETOUR_ACC_RECT.topleft[1] + \
+            c.HAUTEUR_BOUTON_PERDU:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC_EFFET, c.BOUTON_RETOUR_ACC_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC, c.BOUTON_RETOUR_ACC_RECT)
 
 
 def affichage_accueil(position_x, position_y):
@@ -250,8 +361,8 @@ def trajectoire_mode_facile(position_x, position_y):
         # Pour chaque marqueur de trajectoire
         for position_x_marqueur in range(c.POS_DEBUT_MARQUEUR_TRAJ, c.POS_FIN_MARQUEUR_TRAJ, c.AJOUT_POS_MARQUEUR_TRAJ):
             # Calcul de la position en y du marqueur de trajectoire
-            position_y_marqueur = calc.fonction_trajectoire(position_x_marqueur, angle_tir, vitesse_initiale,
-                                                            intensite_pesanteur)
+            position_y_marqueur = calc.fonction_trajectoire_boulet(position_x_marqueur, angle_tir, vitesse_initiale,
+                                                                   intensite_pesanteur)
 
             # Dessin du marqueur de trajectoire
             pygame.draw.circle(fenetre_jeu, "yellow", (position_x_marqueur + pos_x_centre_bouche_canon,
@@ -297,43 +408,7 @@ def pivoter_fleche_jauge():
     fenetre_jeu.blit(image_fleche_pivote, fleche_pivote_rect)
 
 
-def game_over():
-    global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
-    global temps_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu
-    global tir_possible, en_jeu, mode_facile, regles_affichees, en_pause
-
-    intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
-
-    position_x_boulet = 0
-    position_y_boulet = 0
-
-    position_x_tir = 0
-    position_y_tir = 0
-    vitesse_initiale_tir = 0
-
-    vitesse_initiale = c.VITESSE_BOULET_MIN
-
-    angle_rotation = -c.ANGLE_ROTATION_INITAL
-
-    temps_debut_explosion = 0
-    coordonnees_explosion = 0, 0
-
-    en_tir = False
-    en_animation_tir = False
-
-    en_explosion = False
-
-    nombre_clic_en_jeu = 0
-    tir_possible = False
-
-    mode_facile = False
-
-    regles_affichees = False
-
-    en_jeu = False
-
-    en_pause = False
-
+initaliser_variables_jeu()
 
 while en_execution:
     # Obtenir les coordonnées de la souris
@@ -342,10 +417,17 @@ while en_execution:
     # Si le jeu est en cours
     if en_jeu:
         if not en_pause:
+            temps_millisecondes += int(1000 / c.IMAGES_PAR_SECONDE)
+            if temps_millisecondes > 1000:
+                temps_jeu_ecoule += 1
+                temps_millisecondes = 0
+
             # Actualiser le jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
 
     # Si le jeu n'est pas en cours
+    elif perdu:
+        affichage_menu_perdu(position_souris_x, position_souris_y)
     else:
         # Afficher l'écran d'accueil en fonction des coordonnées de la souris
         affichage_accueil(position_souris_x, position_souris_y)
@@ -374,7 +456,7 @@ while en_execution:
         # Si un bouton de la souris est enfoncé
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Si le jeu n'est pas en cours
-            if not en_jeu:
+            if not en_jeu and not perdu:
                 if not regles_affichees:
                     # Si le bouton "Jouer" est cliqué
                     if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
@@ -385,7 +467,6 @@ while en_execution:
                             nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_FACILE
                         else:
                             nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
-
                     # Si la case d'encoche pour le mode facile est cliquée
                     elif c.ENCOCHE_RECT.collidepoint(event.pos) or c.TEXTE_MODE_FACILE_RECT.collidepoint(event.pos):
                         # Inverser le mode de difficulté
@@ -396,6 +477,19 @@ while en_execution:
 
                 elif c.CROIX_RECT.collidepoint(event.pos):
                     regles_affichees = False
+
+            elif perdu:
+                if c.BOUTON_RETOUR_ACC_RECT.collidepoint(event.pos):
+                    perdu = False
+                elif c.BOUTON_REESSAYER_RECT.collidepoint(event.pos):
+                    en_jeu = True
+
+                    if mode_facile:
+                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_FACILE
+                    else:
+                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
+
+                    perdu = False
 
         # Si un bouton de la souris est relâché et le jeu est en cours
         elif en_jeu and event.type == pygame.MOUSEBUTTONUP:
@@ -431,7 +525,7 @@ while en_execution:
                                           (c.HAUTEUR_TEXTE_MENU_PAUSE + 7) * indice_ligne_pause))
 
             elif en_pause and event.key == pygame.K_ESCAPE:
-                game_over()
+                initaliser_variables_jeu()
 
     # Régler le nombre d'images par seconde
-    pygame.time.Clock().tick(c.IPS)
+    pygame.time.Clock().tick(c.IMAGES_PAR_SECONDE)
