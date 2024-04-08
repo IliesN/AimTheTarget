@@ -2,7 +2,6 @@ import constantes_test as c
 import fonctions_calcul_test as calc
 import pygame
 import math
-import random
 
 # Modifications des paramètres principaux de la fenêtre
 pygame.display.set_caption("Astral Shooter")
@@ -61,63 +60,6 @@ def initaliser_variables_jeu():
     apparition_meteorite = -1
 
 
-def actualiser_pos_meteorite(composants_meteorite):
-    nouvelle_pos_x = composants_meteorite["coordonnees_actuelles"][0] + c.VITESSE_METEORITE
-    nouvelle_pos_y = int(composants_meteorite["trajectoire"](nouvelle_pos_x))
-
-    composants_meteorite["coordonnees_actuelles"] = [nouvelle_pos_x, nouvelle_pos_y]
-
-    meteorite_rect = composants_meteorite["rect_meteorite"]
-    meteorite_rect.x, meteorite_rect.y = nouvelle_pos_x, nouvelle_pos_y
-    composants_meteorite["rect_meteorite"] = meteorite_rect
-
-    zone_collision_rect = composants_meteorite["rect_zone_collision"]
-    zone_collision_rect.center = meteorite_rect.center
-    composants_meteorite["rect_zone_collision"] = zone_collision_rect
-
-    return composants_meteorite
-
-
-def creer_meteorite():
-    positions_x_initiales = []
-    for composants_meteorite in liste_meteorites:
-        positions_x_initiales.append(composants_meteorite["coordonnees_initiales"][0])
-
-    position_x_meteorite = random.choice([
-        position_x
-        for position_x in range(c.INTERVALLE_POS_X_METEORITES[0], c.INTERVALLE_POS_X_METEORITES[1],
-                                c.DIMENSION_METEORITE)
-        if position_x not in positions_x_initiales  # Permet de faire apparaître des météorites là où elles ne sont
-        # encore jamais apparues
-    ])
-
-    meteorite_rect = c.IMAGE_METEORITE.get_rect()
-    meteorite_rect.x, meteorite_rect.y = (position_x_meteorite, c.POS_Y_METEORITES)
-
-    collision_meteorite_rect = pygame.Rect(0, 0, c.DIMENSION_METEORITE, c.DIMENSION_METEORITE)
-    collision_meteorite_rect.center = meteorite_rect.center
-
-    coefficient_directeur_traj = (c.PERSONNAGE_RECT.center[1] - c.POS_Y_METEORITES) / \
-                                 (c.PERSONNAGE_RECT.center[0] - position_x_meteorite)
-
-    liste_meteorites.append({
-        "coordonnees_initiales": (position_x_meteorite, c.POS_Y_METEORITES),  # Coordonnées initiales, servant à ne pas
-        # superposer les meteorites
-
-        "rect_meteorite": meteorite_rect,  # Rect correspondant à la météorite
-        "rect_zone_collision": collision_meteorite_rect,  # Rect correspondant à la zone de collision de la météorite
-
-        "trajectoire": lambda pos_x: coefficient_directeur_traj * pos_x +
-        c.POS_Y_METEORITES - coefficient_directeur_traj * position_x_meteorite,
-        # Calculer la trajectoire de chaque meteorite allant de leur position initale vers le centre du personnage
-
-        "coordonnees_actuelles": [position_x_meteorite, c.POS_Y_METEORITES],  # Coordonnées actuelles de la météorite
-
-        "meteorite_en_vol": True  # Booléen permettant de savoir si la météorite est en vol
-        }
-    )
-
-
 def actualisation_jeu(position_x, position_y):
     """
     Actualise l'affichage du jeu en fonction des événements en cours.
@@ -138,6 +80,7 @@ def actualisation_jeu(position_x, position_y):
     global nombre_meteorites_actuel
     global en_blessure
     global perdu
+    global liste_meteorites
 
     # Affichage du décor de la Terre
     fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
@@ -154,7 +97,7 @@ def actualisation_jeu(position_x, position_y):
 
     if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule \
             and nombre_meteorites_actuel <= c.NOMBRE_METEORITES_NIVEAU_1:
-        creer_meteorite()
+        liste_meteorites = calc.creer_meteorite(liste_meteorites)
         apparition_meteorite = temps_jeu_ecoule
         nombre_meteorites_actuel += 1
 
@@ -185,7 +128,7 @@ def actualisation_jeu(position_x, position_y):
     indice_composants_meteorite = 0
     while indice_composants_meteorite < len(liste_meteorites):
         liste_meteorites[indice_composants_meteorite] = \
-            actualiser_pos_meteorite(liste_meteorites[indice_composants_meteorite])
+            calc.actualiser_pos_meteorite(liste_meteorites[indice_composants_meteorite])
         rect_meteorite_collision = liste_meteorites[indice_composants_meteorite]["rect_zone_collision"]
         if rect_meteorite_collision.colliderect(c.PERSONNAGE_RECT):
             # Réduction du nombre de vies
@@ -222,9 +165,9 @@ def actualisation_jeu(position_x, position_y):
             c.POSTION_CENTRE_CANON_SANS_ROUE[1] - c.RAYON_CANON_TIR * math.sin(angle_tir)
 
         # Calcul de la nouvelle position du boulet
-        position_x_boulet += vitesse_initiale_tir / c.DIVISEUR_VITESSE
-        position_y_boulet = calc.fonction_trajectoire(position_x_boulet, angle_tir, vitesse_initiale_tir,
-                                                      intensite_pesanteur)
+        position_x_boulet += vitesse_initiale_tir // c.DIVISEUR_VITESSE
+        position_y_boulet = calc.fonction_trajectoire_boulet(position_x_boulet, angle_tir, vitesse_initiale_tir,
+                                                             intensite_pesanteur)
 
         # Création du rectangle englobant du boulet
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
@@ -317,8 +260,25 @@ def actualisation_jeu(position_x, position_y):
             horodatage_debut_explosion = 0
 
 
-def affichage_menu_perdu():
+def affichage_menu_perdu(position_x, position_y):
     fenetre_jeu.blit(c.IMAGE_FOND_MENUS, (0, 0))
+
+    fenetre_jeu.blit(c.IMAGE_TEXTE_ECHOUAGE, c.TEXTE_ECHOUAGE_RECT)
+    fenetre_jeu.blit(c.IMAGE_TEXTE_REESSAYER, c.TEXTE_RESSAYER_RECT)
+
+    if c.BOUTON_REESSAYER_RECT.topleft[0] < position_x < c.BOUTON_REESSAYER_RECT.topleft[0] + c.LARGEUR_BOUTON_PERDU \
+            and c.BOUTON_REESSAYER_RECT.topleft[1] < position_y < c.BOUTON_REESSAYER_RECT.topleft[1] + \
+            c.HAUTEUR_BOUTON_PERDU:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_REESSAYER_EFFET, c.BOUTON_REESSAYER_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_REESSAYER, c.BOUTON_REESSAYER_RECT)
+
+    if c.BOUTON_RETOUR_ACC_RECT.topleft[0] < position_x < c.BOUTON_RETOUR_ACC_RECT.topleft[0] + c.LARGEUR_BOUTON_PERDU \
+            and c.BOUTON_RETOUR_ACC_RECT.topleft[1] < position_y < c.BOUTON_RETOUR_ACC_RECT.topleft[1] + \
+            c.HAUTEUR_BOUTON_PERDU:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC_EFFET, c.BOUTON_RETOUR_ACC_RECT)
+    else:
+        fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC, c.BOUTON_RETOUR_ACC_RECT)
 
 
 def affichage_accueil(position_x, position_y):
@@ -401,8 +361,8 @@ def trajectoire_mode_facile(position_x, position_y):
         # Pour chaque marqueur de trajectoire
         for position_x_marqueur in range(c.POS_DEBUT_MARQUEUR_TRAJ, c.POS_FIN_MARQUEUR_TRAJ, c.AJOUT_POS_MARQUEUR_TRAJ):
             # Calcul de la position en y du marqueur de trajectoire
-            position_y_marqueur = calc.fonction_trajectoire(position_x_marqueur, angle_tir, vitesse_initiale,
-                                                            intensite_pesanteur)
+            position_y_marqueur = calc.fonction_trajectoire_boulet(position_x_marqueur, angle_tir, vitesse_initiale,
+                                                                   intensite_pesanteur)
 
             # Dessin du marqueur de trajectoire
             pygame.draw.circle(fenetre_jeu, "yellow", (position_x_marqueur + pos_x_centre_bouche_canon,
@@ -457,7 +417,7 @@ while en_execution:
     # Si le jeu est en cours
     if en_jeu:
         if not en_pause:
-            temps_millisecondes += int(1000 / c.IPS)
+            temps_millisecondes += int(1000 / c.IMAGES_PAR_SECONDE)
             if temps_millisecondes > 1000:
                 temps_jeu_ecoule += 1
                 temps_millisecondes = 0
@@ -467,7 +427,7 @@ while en_execution:
 
     # Si le jeu n'est pas en cours
     elif perdu:
-        affichage_menu_perdu()
+        affichage_menu_perdu(position_souris_x, position_souris_y)
     else:
         # Afficher l'écran d'accueil en fonction des coordonnées de la souris
         affichage_accueil(position_souris_x, position_souris_y)
@@ -518,6 +478,19 @@ while en_execution:
                 elif c.CROIX_RECT.collidepoint(event.pos):
                     regles_affichees = False
 
+            elif perdu:
+                if c.BOUTON_RETOUR_ACC_RECT.collidepoint(event.pos):
+                    perdu = False
+                elif c.BOUTON_REESSAYER_RECT.collidepoint(event.pos):
+                    en_jeu = True
+
+                    if mode_facile:
+                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_FACILE
+                    else:
+                        nombre_vies_actuel = c.NOMBRE_VIES_INITIAL_MODE_NORMAL
+
+                    perdu = False
+
         # Si un bouton de la souris est relâché et le jeu est en cours
         elif en_jeu and event.type == pygame.MOUSEBUTTONUP:
             # Incrémenter le nombre de clics en jeu
@@ -555,4 +528,4 @@ while en_execution:
                 initaliser_variables_jeu()
 
     # Régler le nombre d'images par seconde
-    pygame.time.Clock().tick(c.IPS)
+    pygame.time.Clock().tick(c.IMAGES_PAR_SECONDE)
