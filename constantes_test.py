@@ -27,8 +27,6 @@ IMAGE_CROIX_EFFET = pygame.image.load("elements_principaux/croix_rouge_effet.png
 
 IMAGE_FOND_PAUSE = pygame.image.load("elements_principaux/menu_pause.png")
 
-IMAGE_FOND_MENUS = pygame.image.load("elements_principaux/fond_menus.png")
-
 IMAGE_BOUTON_RETOUR_ACC_EFFET = pygame.image.load("elements_principaux/bouton_retour_acc_effet.png")
 IMAGE_BOUTON_RETOUR_ACC = pygame.image.load("elements_principaux/bouton_retour_acc.png")
 IMAGE_BOUTON_REESSAYER_EFFET = pygame.image.load("elements_principaux/bouton_reessayer_effet.png")
@@ -41,6 +39,10 @@ IMAGE_TEXTE_ECHOUAGE = pygame.image.load("elements_principaux/texte_echouage.png
 
 # Decors
 IMAGE_DECOR_TERRE = pygame.image.load("decors/decor_type_terre.jpg")
+IMAGE_DECOR_LUNE = pygame.image.load("decors/decor_type_lune.jpg")
+IMAGE_DECOR_JUPITER = pygame.image.load("decors/decor_type_jupiter.jpg")
+
+IMAGE_FOND_MENUS = pygame.image.load("decors/fond_menus.png")
 
 
 # Elements decors
@@ -147,6 +149,8 @@ TEXTE_RESSAYER_RECT.center = LARGEUR_FENETRE // 2, DECALAGE_TEXTE_REESSAYER
 # En jeu
 
 INTENSITE_PESANTEUR_TERRE = 9.81
+INTENSITE_PESANTEUR_LUNE = 1.62
+INTENSITE_PESANTEUR_JUPITER = 24.79
 
 
 DECALAGE_X_CANON = 25
@@ -197,7 +201,7 @@ MUR_RECT = pygame.Rect(LARGEUR_FENETRE, 0, LARGEUR_MUR_COLLISION, HAUTEUR_FENETR
 
 DUREE_EXPLOSION = 200
 
-NOMBRE_VIES_INITIAL_MODE_NORMAL = 3
+NOMBRE_VIES_INITIAL_MODE_NORMAL = 4
 NOMBRE_VIES_INITIAL_MODE_FACILE = 7
 
 LARGEUR_COEUR = 30
@@ -229,6 +233,8 @@ RECUL_BLESSURE = 25
 COORDONNEES_TEXTE_PAUSE = 415, 395
 
 HAUTEUR_TEXTE_MENU_PAUSE = 18
+
+DELAI_MORT = 250
 
 POLICE_TEXTE_MENU_PAUSE = pygame.font.SysFont(POLICE_JEU, HAUTEUR_TEXTE_MENU_PAUSE)
 

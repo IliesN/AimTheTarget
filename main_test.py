@@ -12,11 +12,9 @@ en_execution = True
 
 
 def initaliser_variables_jeu():
-    global intensite_pesanteur, position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
-    global horodatage_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu, perdu
+    global position_x_boulet, position_y_boulet, position_x_tir, position_y_tir, vitesse_initiale_tir, vitesse_initiale, angle_rotation
+    global horodatage_debut_explosion, coordonnees_explosion, nombre_vies_actuel, en_tir, en_animation_tir, en_explosion, nombre_clic_en_jeu, perdu, niveau_actuel
     global tir_possible, en_jeu, mode_facile, regles_affichees, en_pause, nombre_meteorites_actuel, liste_meteorites, temps_jeu_ecoule, temps_millisecondes, apparition_meteorite, en_blessure
-
-    intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
 
     position_x_boulet = 0
     position_y_boulet = 0
@@ -59,6 +57,8 @@ def initaliser_variables_jeu():
     nombre_meteorites_actuel = 0
     apparition_meteorite = -1
 
+    niveau_actuel = 1
+
 
 def actualisation_jeu(position_x, position_y):
     """
@@ -82,10 +82,18 @@ def actualisation_jeu(position_x, position_y):
     global perdu
     global liste_meteorites
 
-    # Affichage du décor de la Terre
-    fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
+    if niveau_actuel == 1:
+        # Affichage du décor de la Terre
+        fenetre_jeu.blit(c.IMAGE_DECOR_TERRE, (0, 0))
+        intensite_pesanteur = c.INTENSITE_PESANTEUR_TERRE
+    elif niveau_actuel == 2:
+        fenetre_jeu.blit(c.IMAGE_DECOR_LUNE, (0, 0))
+        intensite_pesanteur = c.INTENSITE_PESANTEUR_LUNE
+    elif niveau_actuel == 3:
+        fenetre_jeu.blit(c.IMAGE_DECOR_JUPITER, (0, 0))
+        intensite_pesanteur = c.INTENSITE_PESANTEUR_JUPITER
 
-    # Rotation de l'image du canon
+        # Rotation de l'image du canon
     image_canon_pivote = pygame.transform.rotate(c.IMAGE_CANON_SANS_ROUE,
                                                  math.degrees(calc.angle_tir_canon(position_x, position_y)))
 
@@ -152,7 +160,7 @@ def actualisation_jeu(position_x, position_y):
 
     # Affichage de la trajectoire anticipée si le mode de jeu est facile
     if mode_facile:
-        trajectoire_mode_facile(position_x, position_y)
+        trajectoire_mode_facile(position_x, position_y, intensite_pesanteur)
 
     # Si une animation de tir est en cours
     if en_animation_tir:
@@ -340,7 +348,7 @@ def affichage_accueil(position_x, position_y):
             fenetre_jeu.blit(c.IMAGE_CROIX, c.CROIX_RECT)
 
 
-def trajectoire_mode_facile(position_x, position_y):
+def trajectoire_mode_facile(position_x, position_y, intensite_pesanteur):
     """
     Affiche la trajectoire anticipée du boulet en mode facile.
 
