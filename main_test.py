@@ -1,3 +1,12 @@
+"""
+"Astral Shooter"
+Réalisé par RADOUANE Ismaël, NASR Ilies, PELPOIR Justin, BROSSET Mael, PINTO RIBEIRO Clément
+
+Ce fichier est le fichier principal du projet; il contient l'ensemble des fonctions se chargeant de l'affichage du jeu à
+l'écran ainsi que la boucle principale du jeu.
+"""
+
+
 import constantes_test as c
 import fonctions_calcul_test as calc
 import pygame
@@ -10,27 +19,30 @@ pygame.display.set_icon(c.ICONE_JEU)
 
 en_execution = True
 
+meilleur_score_facile = calc.lecture_fichier_score(c.NOM_FICHIER_MEILLEUR_SCORE_FACILE)
+meilleur_score_normal = calc.lecture_fichier_score(c.NOM_FICHIER_MEILLEUR_SCORE_NORMAL)
 
-def initialiser_variables_jeu(choix_mode_facile=False, choix_niveau_actuel=0, choix_perdu=False, choix_gagne=False,
-                              choix_valeur_horodatage=0, choix_victoire=False):
+
+def initialiser_variables_jeu(choix_mode_facile=False, choix_niveau_actuel=0, choix_perdu=False,
+                              choix_valeur_horodatage=0, choix_victoire=False, choix_temps_survie_jeu=0):
     """
     Initialise les variables du jeu avec les valeurs par défaut ou les valeurs spécifiées en argument.
 
     :param choix_mode_facile: Indique si le mode facile est activé (bool).
     :param choix_niveau_actuel: Niveau actuel du jeu (int).
     :param choix_perdu: Indique si le joueur a perdu (bool).
-    :param choix_gagne: Indique si le joueur a gagné (bool).
     :param choix_valeur_horodatage: Valeur de l'horodatage initial (int).
     :param choix_victoire: Indique si le joueur est en état de victoire (bool).
+    :param choix_temps_survie_jeu: Nombre de millisecondes écoulées durant la survie du joueur (int).
     """
     # Déclaration des variables globales du jeu
     global position_x_boulet, position_y_boulet
     global position_x_tir, position_y_tir, vitesse_initiale_tir
     global vitesse_initiale, angle_rotation
     global niveau_actuel, coordonnees_animation_impact, nombre_vies_actuel
-    global valeur_horodatage_debut, temps_jeu_ecoule, temps_millisecondes
+    global valeur_horodatage_debut, temps_jeu_ecoule, temps_millisecondes, temps_survie_jeu
     global en_tir, en_animation_tir, en_explosion, en_pause, en_victoire, en_jeu, en_blessure, nombre_clic_en_jeu
-    global mode_facile, tir_possible, regles_affichees, perdu, gagne
+    global mode_facile, tir_possible, regles_affichees, perdu
     global apparition_meteorite, nombre_meteorites_actuel, liste_meteorites
 
     # Initialisation des variables du jeu avec les valeurs par défaut ou les valeurs spécifiées
@@ -65,7 +77,6 @@ def initialiser_variables_jeu(choix_mode_facile=False, choix_niveau_actuel=0, ch
     regles_affichees = False
 
     perdu = choix_perdu
-    gagne = choix_gagne
 
     en_victoire = choix_victoire
 
@@ -73,6 +84,7 @@ def initialiser_variables_jeu(choix_mode_facile=False, choix_niveau_actuel=0, ch
 
     temps_jeu_ecoule = 0
     temps_millisecondes = 0
+    temps_survie_jeu = choix_temps_survie_jeu
 
     nombre_meteorites_actuel = 0
     apparition_meteorite = -1
@@ -95,21 +107,23 @@ def actualisation_jeu(position_x, position_y):
     global valeur_horodatage_debut, coordonnees_animation_impact
     global nombre_meteorites_actuel, apparition_meteorite, liste_meteorites
     global nombre_vies_actuel, niveau_actuel
+    global meilleur_score_facile, meilleur_score_normal
 
     # Affichage du décor du niveau actuel
     fenetre_jeu.blit(c.LISTE_DECORS_NIVEAU[niveau_actuel], (0, 0))
 
+    affichage_score()
+
     # Intensité de la pesanteur en fonction du niveau actuel
     intensite_pesanteur = c.INTENSITE_PESANTEUR_NIVEAU[niveau_actuel]
 
-    # Si le nombre de météorites atteint le maximum pour le niveau actuel et il n'y a plus de météorites en jeu
-    if nombre_meteorites_actuel == c.NOMBRE_METEORITES_NIVEAU[niveau_actuel] and not liste_meteorites:
-        niveau_actuel += 1
-        if niveau_actuel == 3:
-            initialiser_variables_jeu(choix_gagne=True)
-        else:
+    if niveau_actuel < 2:
+        # Si le nombre de météorites atteint le maximum pour le niveau actuel et il n'y a plus de météorites en jeu
+        if nombre_meteorites_actuel == c.NOMBRE_METEORITES_NIVEAU[niveau_actuel] and not liste_meteorites:
+            niveau_actuel += 1
             initialiser_variables_jeu(choix_mode_facile=mode_facile, choix_niveau_actuel=niveau_actuel,
-                                      choix_valeur_horodatage=pygame.time.get_ticks(), choix_victoire=True)
+                                      choix_valeur_horodatage=pygame.time.get_ticks(), choix_victoire=True,
+                                      choix_temps_survie_jeu=temps_survie_jeu)
 
     # Rotation de l'image du canon en fonction de la position de la souris
     image_canon_pivote = pygame.transform.rotate(c.IMAGE_CANON_SANS_ROUE,
@@ -123,12 +137,18 @@ def actualisation_jeu(position_x, position_y):
 
     # Si le temps écoulé est un multiple de 2 et il n'y a pas de météorites apparues à ce moment
     # et le nombre de météorites actuelles est inférieur au nombre maximum de météorites pour le niveau
-    if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule \
-            and nombre_meteorites_actuel < c.NOMBRE_METEORITES_NIVEAU[niveau_actuel]:
-        # Création d'une nouvelle météorite
-        liste_meteorites = calc.creer_meteorite(liste_meteorites)
-        apparition_meteorite = temps_jeu_ecoule
-        nombre_meteorites_actuel += 1
+    if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule:
+        if niveau_actuel < 2:
+            if nombre_meteorites_actuel < c.NOMBRE_METEORITES_NIVEAU[niveau_actuel]:
+                # Création d'une nouvelle météorite
+                liste_meteorites = calc.creer_meteorite(liste_meteorites)
+                apparition_meteorite = temps_jeu_ecoule
+                nombre_meteorites_actuel += 1
+        else:
+            # Création d'une nouvelle météorite
+            liste_meteorites = calc.creer_meteorite(liste_meteorites)
+            apparition_meteorite = temps_jeu_ecoule
+            nombre_meteorites_actuel += 1
 
     # Détermination du nombre de vies initial en fonction du mode de jeu
     if mode_facile:
@@ -172,6 +192,15 @@ def actualisation_jeu(position_x, position_y):
 
             # Si le joueur n'a plus de vies, il a perdu
             if nombre_vies_actuel == 0:
+                if mode_facile:
+                    meilleur_score_facile = calc.comparer_score(calc.calculer_score(temps_survie_jeu),
+                                                                meilleur_score_facile,
+                                                                c.NOM_FICHIER_MEILLEUR_SCORE_FACILE)
+                else:
+                    meilleur_score_normal = calc.comparer_score(calc.calculer_score(temps_survie_jeu),
+                                                                meilleur_score_normal,
+                                                                c.NOM_FICHIER_MEILLEUR_SCORE_NORMAL)
+
                 initialiser_variables_jeu(choix_mode_facile=mode_facile, choix_perdu=True)
                 break  # Sortie de la boucle, car le jeu est terminé
             else:
@@ -247,6 +276,15 @@ def actualisation_jeu(position_x, position_y):
 
                 # Si le joueur n'a plus de vies, il a perdu
                 if nombre_vies_actuel == 0:
+                    if mode_facile:
+                        meilleur_score_facile = calc.comparer_score(calc.calculer_score(temps_survie_jeu),
+                                                                    meilleur_score_facile,
+                                                                    c.NOM_FICHIER_MEILLEUR_SCORE_FACILE)
+                    else:
+                        meilleur_score_normal = calc.comparer_score(calc.calculer_score(temps_survie_jeu),
+                                                                    meilleur_score_normal,
+                                                                    c.NOM_FICHIER_MEILLEUR_SCORE_NORMAL)
+
                     initialiser_variables_jeu(choix_mode_facile=mode_facile, choix_perdu=True)
             else:
                 en_explosion = True
@@ -272,6 +310,29 @@ def actualisation_jeu(position_x, position_y):
             elif en_blessure:
                 en_blessure = False
             valeur_horodatage_debut = 0
+
+
+def affichage_score():
+    """
+    Affiche le score actuel et le meilleur score à l'écran.
+
+    Utilise la police de texte définie dans les constantes pour rendre le texte en blanc.
+
+    Si le mode de jeu est facile, affiche le meilleur score correspondant au mode facile, sinon affiche le meilleur
+    score du mode normal.
+
+    :return: None
+    """
+    fenetre_jeu.blit(c.POLICE_TEXTE_SCORES.render(f"Score actuel : {calc.calculer_score(temps_survie_jeu)}", True,
+                                                  "white"), (c.DECALAGE_JAUGE, c.TEXTE_SCORE_ACTUEL_POS_Y))
+
+    if mode_facile:
+        meilleur_score = meilleur_score_facile
+    else:
+        meilleur_score = meilleur_score_normal
+
+    fenetre_jeu.blit(c.POLICE_TEXTE_SCORES.render(f"Meilleur score : {meilleur_score}", True,
+                                                  "white"), (c.DECALAGE_JAUGE, c.TEXTE_MEILLEUR_SCORE_POS_Y))
 
 
 def affichage_menu_perdu(position_x, position_y):
@@ -305,30 +366,6 @@ def affichage_menu_perdu(position_x, position_y):
         fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC_EFFET, c.BOUTON_RETOUR_ACC_PERDU_RECT)
     else:
         fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC, c.BOUTON_RETOUR_ACC_PERDU_RECT)  # Affichage du bouton sans effet
-
-
-def affichage_gagne(position_x, position_y):
-    """
-    Affiche le menu de victoire lorsque le joueur a gagné.
-
-    :param position_x: La coordonnée x de la position de la souris (int).
-    :param position_y: La coordonnée y de la position de la souris (int).
-    :return: None
-    """
-    # Affichage du fond du menu
-    fenetre_jeu.blit(c.IMAGE_FOND_MENUS, (0, 0))
-
-    # Affichage du texte "Gagné"
-    fenetre_jeu.blit(c.IMAGE_TEXTE_GAGNE, c.TEXTE_GAGNE_RECT)
-
-    # Vérification si la souris survole le bouton "Retour au menu principal"
-    if c.BOUTON_RETOUR_ACC_GAGNE_RECT.topleft[0] < position_x < c.BOUTON_RETOUR_ACC_GAGNE_RECT.topleft[0] + \
-        c.LARGEUR_BOUTON_MENU and c.BOUTON_RETOUR_ACC_GAGNE_RECT.topleft[1] < position_y \
-            < c.BOUTON_RETOUR_ACC_PERDU_RECT.topleft[1] + c.HAUTEUR_BOUTON_MENU:
-        # Affichage du bouton avec effet
-        fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC_EFFET, c.BOUTON_RETOUR_ACC_GAGNE_RECT)
-    else:
-        fenetre_jeu.blit(c.IMAGE_BOUTON_RETOUR_ACC, c.BOUTON_RETOUR_ACC_GAGNE_RECT)  # Affichage du bouton sans effet
 
 
 def affichage_ecran_niveau_suivant():
@@ -511,6 +548,8 @@ while en_execution:
                 temps_jeu_ecoule += 1
                 temps_millisecondes = 0
 
+            temps_survie_jeu += int(1000 / c.IMAGES_PAR_SECONDE)
+
             # Actualisation du jeu en fonction des coordonnées de la souris
             actualisation_jeu(position_souris_x, position_souris_y)
 
@@ -530,11 +569,6 @@ while en_execution:
             valeur_horodatage_debut = 0
             nombre_clic_en_jeu = 1
             tir_possible = True
-
-    # Si le joueur a gagné
-    elif gagne:
-        # Affichage de l'écran de victoire en fonction des coordonnées de la souris
-        affichage_gagne(position_souris_x, position_souris_y)
 
     else:
         # Affichage de l'écran d'accueil en fonction des coordonnées de la souris
@@ -564,7 +598,7 @@ while en_execution:
         # Si un bouton de la souris est enfoncé
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Si le jeu n'est pas en cours
-            if not en_jeu and not perdu and not en_victoire and not gagne:
+            if not en_jeu and not perdu and not en_victoire:
                 if not regles_affichees:
                     # Si le bouton "Jouer" est cliqué
                     if c.BOUTON_JOUER_RECT.collidepoint(event.pos):
@@ -602,12 +636,6 @@ while en_execution:
 
                     perdu = False
 
-                    # Si le joueur a gagné
-                elif gagne:
-                    # Si le bouton "Retour à l'accueil" est cliqué
-                    if c.BOUTON_RETOUR_ACC_GAGNE_RECT.collidepoint(event.pos):
-                        initialiser_variables_jeu()
-
         # Si un bouton de la souris est relâché et le jeu est en cours
         elif en_jeu and event.type == pygame.MOUSEBUTTONUP:
             # Incrémenter le nombre de clics en jeu
@@ -639,6 +667,14 @@ while en_execution:
 
             # Si le jeu est en pause et la touche "Échap" est enfoncée, réinitialiser les variables du jeu
             elif en_pause and event.key == pygame.K_ESCAPE:
+                if mode_facile:
+                    meilleur_score_facile = calc.comparer_score(calc.calculer_score(temps_survie_jeu),
+                                                                meilleur_score_facile,
+                                                                c.NOM_FICHIER_MEILLEUR_SCORE_FACILE)
+                else:
+                    meilleur_score_normal = calc.comparer_score(calc.calculer_score(temps_survie_jeu),
+                                                                meilleur_score_normal,
+                                                                c.NOM_FICHIER_MEILLEUR_SCORE_NORMAL)
                 initialiser_variables_jeu(choix_mode_facile=mode_facile)
 
     # Régler le nombre d'images par seconde

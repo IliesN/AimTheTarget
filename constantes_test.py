@@ -1,3 +1,12 @@
+"""
+"Astral Shooter"
+Réalisé par RADOUANE Ismaël, NASR Ilies, PELPOIR Justin, BROSSET Mael, PINTO RIBEIRO Clément
+
+Ce fichier contient l'ensemble des constantes définies pour le jeu, que ce soit les images chargées à l'écran, la
+position de chaque éléments placés ou même la vitesse de tir du canon par exemple.
+"""
+
+
 import pygame
 
 pygame.init()
@@ -8,59 +17,59 @@ LARGEUR_FENETRE, HAUTEUR_FENETRE = 1280, 500
 
 # Import de toutes les images ##############################
 
-# Elements principaux
-ICONE_JEU = pygame.image.load("elements_principaux/icone_jeu.png")
-IMAGE_DECOR_ACCUEIL = pygame.image.load("decors/decor_accueil.jpg")
-IMAGE_BOUTON_JOUER = pygame.image.load("elements_principaux/bouton_jouer.png")
-IMAGE_EFFET_BOUTON = pygame.image.load("elements_principaux/effet_bouton.png")
-IMAGE_CASE_ENCOCHE = pygame.image.load("elements_principaux/case_encoche.png")
-IMAGE_CASE_ENCOCHE_EFFET = pygame.image.load("elements_principaux/case_encoche_effet.png")
-IMAGE_ENCOCHE_VERTE = pygame.image.load("elements_principaux/encoche_verte.png")
-IMAGE_TEXTE_MODE_ON = pygame.image.load("elements_principaux/texte_mode_facile_on.png")
-IMAGE_TEXTE_MODE_OFF = pygame.image.load("elements_principaux/texte_mode_facile_off.png")
-IMAGE_TEXTE_NOM_JEU = pygame.image.load("elements_principaux/texte_nom_jeu.png")
-IMAGE_TEXTE_CLIQUEZ = pygame.image.load("elements_principaux/texte_cliquez.png")
-IMAGE_REGLES = pygame.image.load("elements_principaux/regles.png")
-IMAGE_REGLES_EFFET = pygame.image.load("elements_principaux/regles_effet.png")
-IMAGE_CROIX = pygame.image.load("elements_principaux/croix_rouge.png")
-IMAGE_CROIX_EFFET = pygame.image.load("elements_principaux/croix_rouge_effet.png")
-
-IMAGE_FOND_PAUSE = pygame.image.load("elements_principaux/menu_pause.png")
-
-IMAGE_BOUTON_RETOUR_ACC_EFFET = pygame.image.load("elements_principaux/bouton_retour_acc_effet.png")
-IMAGE_BOUTON_RETOUR_ACC = pygame.image.load("elements_principaux/bouton_retour_acc.png")
-IMAGE_BOUTON_REESSAYER_EFFET = pygame.image.load("elements_principaux/bouton_reessayer_effet.png")
-IMAGE_BOUTON_REESSAYER = pygame.image.load("elements_principaux/bouton_reessayer.png")
-
-IMAGE_TEXTE_NIVEAU_SUIVANT = pygame.image.load("elements_principaux/texte_niveau_suivant.png")
-IMAGE_TEXTE_REESSAYER = pygame.image.load("elements_principaux/texte_reessayer.png")
-IMAGE_TEXTE_ECHOUAGE = pygame.image.load("elements_principaux/texte_echouage.png")
-IMAGE_TEXTE_GAGNE = pygame.image.load("elements_principaux/texte_gagne.png")
+ICONE_JEU = pygame.image.load("images/icone_jeu.png")
 
 
-# Decors
-IMAGE_DECOR_TERRE = pygame.image.load("decors/decor_type_terre.jpg")
-IMAGE_DECOR_LUNE = pygame.image.load("decors/decor_type_lune.jpg")
-IMAGE_DECOR_JUPITER = pygame.image.load("decors/decor_type_jupiter.jpg")
+IMAGE_DECOR_ACCUEIL = pygame.image.load("images/decors/fond_accueil.png")
 
-LISTE_DECORS_NIVEAU = [IMAGE_DECOR_TERRE, IMAGE_DECOR_LUNE, IMAGE_DECOR_JUPITER]
+IMAGE_DECOR_PREMIER_NIVEAU = pygame.image.load("images/decors/fond_premier_niveau.png")
+IMAGE_DECOR_DEUXIEME_NIVEAU = pygame.image.load("images/decors/fond_deuxieme_niveau.png")
+IMAGE_DECOR_TROISIEME_NIVEAU = pygame.image.load("images/decors/fond_troisieme_niveau.png")
+
+LISTE_DECORS_NIVEAU = [IMAGE_DECOR_PREMIER_NIVEAU, IMAGE_DECOR_DEUXIEME_NIVEAU, IMAGE_DECOR_TROISIEME_NIVEAU]
+
+IMAGE_FOND_MENUS = pygame.image.load("images/decors/fond_menus.png")
 
 
-IMAGE_FOND_MENUS = pygame.image.load("decors/fond_menus.png")
+IMAGE_TEXTE_MODE_ON = pygame.image.load("images/textes/texte_mode_facile_on.png")
+IMAGE_TEXTE_MODE_OFF = pygame.image.load("images/textes/texte_mode_facile_off.png")
+IMAGE_TEXTE_NOM_JEU = pygame.image.load("images/textes/texte_nom_jeu.png")
+IMAGE_TEXTE_CLIQUEZ = pygame.image.load("images/textes/texte_cliquez.png")
+
+IMAGE_TEXTE_NIVEAU_SUIVANT = pygame.image.load("images/textes/texte_niveau_suivant.png")
+IMAGE_TEXTE_REESSAYER = pygame.image.load("images/textes/texte_reessayer.png")
+IMAGE_TEXTE_ECHOUAGE = pygame.image.load("images/textes/texte_echouage.png")
 
 
-# Elements decors
-IMAGE_CANON_SANS_ROUE = pygame.image.load("elements_decor/canon_sans_roue.png")
-IMAGE_ROUE_CANON = pygame.image.load("elements_decor/roue_canon.png")
-IMAGE_BOULET_CANON = pygame.image.load("elements_decor/boulet_canon.png")
-IMAGE_JAUGE_TIR = pygame.image.load("elements_decor/jauge.png")
-IMAGE_FLECHE_JAUGE = pygame.image.load("elements_decor/fleche_jauge.png")
-IMAGE_EXPLOSION = pygame.image.load("elements_decor/explosion.png")
-IMAGE_COEUR_ROUGE = pygame.image.load("elements_decor/coeur_rouge.png")
-IMAGE_COEUR_NOIR = pygame.image.load("elements_decor/coeur_noir.png")
-IMAGE_PERSONNAGE = pygame.image.load("elements_decor/personnage.png")
-IMAGE_METEORITE = pygame.image.load("elements_decor/meteorite.png")
-IMAGE_BLESSURE = pygame.image.load("elements_decor/blessure.png")
+IMAGE_CANON_SANS_ROUE = pygame.image.load("images/elements_jeu/canon_sans_roue.png")
+IMAGE_ROUE_CANON = pygame.image.load("images/elements_jeu/roue_canon.png")
+IMAGE_BOULET_CANON = pygame.image.load("images/elements_jeu/boulet_canon.png")
+IMAGE_JAUGE_TIR = pygame.image.load("images/elements_jeu/jauge.png")
+IMAGE_FLECHE_JAUGE = pygame.image.load("images/elements_jeu/fleche_jauge.png")
+IMAGE_EXPLOSION = pygame.image.load("images/elements_jeu/explosion.png")
+IMAGE_COEUR_ROUGE = pygame.image.load("images/elements_jeu/coeur_rouge.png")
+IMAGE_COEUR_NOIR = pygame.image.load("images/elements_jeu/coeur_noir.png")
+IMAGE_PERSONNAGE = pygame.image.load("images/elements_jeu/personnage.png")
+IMAGE_METEORITE = pygame.image.load("images/elements_jeu/meteorite.png")
+IMAGE_BLESSURE = pygame.image.load("images/elements_jeu/blessure.png")
+
+
+IMAGE_FOND_PAUSE = pygame.image.load("images/elements_menus/menu_pause.png")
+
+IMAGE_BOUTON_JOUER = pygame.image.load("images/elements_menus/bouton_jouer.png")
+IMAGE_EFFET_BOUTON = pygame.image.load("images/elements_menus/effet_bouton.png")
+IMAGE_CASE_ENCOCHE = pygame.image.load("images/elements_menus/case_encoche.png")
+IMAGE_CASE_ENCOCHE_EFFET = pygame.image.load("images/elements_menus/case_encoche_effet.png")
+IMAGE_ENCOCHE_VERTE = pygame.image.load("images/elements_menus/encoche_verte.png")
+IMAGE_REGLES = pygame.image.load("images/elements_menus/regles.png")
+IMAGE_REGLES_EFFET = pygame.image.load("images/elements_menus/regles_effet.png")
+IMAGE_CROIX = pygame.image.load("images/elements_menus/croix_rouge.png")
+IMAGE_CROIX_EFFET = pygame.image.load("images/elements_menus/croix_rouge_effet.png")
+
+IMAGE_BOUTON_RETOUR_ACC_EFFET = pygame.image.load("images/elements_menus/bouton_retour_acc_effet.png")
+IMAGE_BOUTON_RETOUR_ACC = pygame.image.load("images/elements_menus/bouton_retour_acc.png")
+IMAGE_BOUTON_REESSAYER_EFFET = pygame.image.load("images/elements_menus/bouton_reessayer_effet.png")
+IMAGE_BOUTON_REESSAYER = pygame.image.load("images/elements_menus/bouton_reessayer.png")
 
 
 # Valeurs constantes
@@ -180,20 +189,6 @@ DECALAGE_TEXTE_REESSAYER = 200
 TEXTE_RESSAYER_RECT = IMAGE_TEXTE_REESSAYER.get_rect()
 TEXTE_RESSAYER_RECT.center = LARGEUR_FENETRE // 2, DECALAGE_TEXTE_REESSAYER
 
-# Décalage pour l'affichage du texte en cas de victoire
-DECALAGE_TEXTE_GAGNE = 150
-
-# Rectangle pour l'affichage du texte en cas de victoire
-TEXTE_GAGNE_RECT = IMAGE_TEXTE_GAGNE.get_rect()
-TEXTE_GAGNE_RECT.center = LARGEUR_FENETRE // 2, DECALAGE_TEXTE_GAGNE
-
-# Décalage pour l'affichage du bouton "Retour à l'accueil" en cas de victoire
-DECALAGE_BOUTON_RETOUR_ACC_GAGNE = 150
-
-# Rectangle pour l'affichage du bouton "Retour à l'accueil" en cas de victoire
-BOUTON_RETOUR_ACC_GAGNE_RECT = IMAGE_BOUTON_RETOUR_ACC.get_rect()
-BOUTON_RETOUR_ACC_GAGNE_RECT.center = LARGEUR_FENETRE // 2, HAUTEUR_FENETRE // 2 + DECALAGE_POS_Y_BOUTONS_PERDU
-
 
 # En jeu
 
@@ -239,6 +234,8 @@ DECALAGE_JAUGE = 20
 ANGLE_LIMITE_DIMINUTION = -5
 ANGLE_ROTATION_INITAL = 1
 ANGLE_ROTATION_MAXIMAL = 177
+
+DIMENSION_JAUGE = 100
 
 # Rectangle de la flèche de la jauge et position du centre
 FLECHE_JAUGE_RECT = IMAGE_FLECHE_JAUGE.get_rect()
@@ -290,7 +287,7 @@ POS_Y_METEORITES = 0
 VITESSE_METEORITE = 3
 
 # Nombre de météorites pour chaque niveau
-NOMBRE_METEORITES_NIVEAU = [10, 15, 15]
+NOMBRE_METEORITES_NIVEAU = [10, 15]
 
 # Largeur du marqueur de trajectoire et positions début et fin
 LARGEUR_MARQUEUR_TRAJECTOIRE = 5
@@ -320,3 +317,13 @@ TEXTE_MENU_PAUSE = ["Le jeu est en pause.",
                     "- Appuyez sur Entrée pour relancer le jeu",
                     "- Appuyez sur Echap pour quitter le jeu",
                     ]
+
+NOM_FICHIER_MEILLEUR_SCORE_NORMAL = "meilleur_score_normal.txt"
+NOM_FICHIER_MEILLEUR_SCORE_FACILE = "meilleur_score_facile.txt"
+
+HAUTEUR_TEXTE_SCORE = 16
+
+POLICE_TEXTE_SCORES = pygame.font.SysFont(POLICE_JEU, HAUTEUR_TEXTE_SCORE)
+
+TEXTE_SCORE_ACTUEL_POS_Y = DIMENSION_JAUGE
+TEXTE_MEILLEUR_SCORE_POS_Y = TEXTE_SCORE_ACTUEL_POS_Y + 25

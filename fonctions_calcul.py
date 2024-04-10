@@ -1,3 +1,12 @@
+"""
+"Astral Shooter"
+Réalisé par RADOUANE Ismaël, NASR Ilies, PELPOIR Justin, BROSSET Mael, PINTO RIBEIRO Clément
+
+Ce fichier contient toutes les fonctions de "calcul", notamment la trajectoire de tir et celle des météorites, ou même
+l'actualisation de la postion d'une météorite, par exemple.
+"""
+
+
 import constantes as c
 import math
 import random
@@ -25,7 +34,8 @@ def fonction_trajectoire_meteorite(x, composants_meteorite):
     Calcule la hauteur à laquelle se trouve une météorite à une position x donnée sur l'écran.
 
     :param x: Position horizontale sur l'écran où la hauteur de la météorite est calculée (float).
-    :param composants_meteorite: Dictionnaire contenant les composants de la météorite, notamment ses coordonnées initiales (dict).
+    :param composants_meteorite: Dictionnaire contenant les composants de la météorite,
+    notamment ses coordonnées initiales (dict).
 
     :return: Hauteur de la météorite à la position x spécifiée (float).
     """
@@ -134,3 +144,74 @@ def angle_tir_canon(position_x, position_y):
         angle_tir = c.ANGLE_TIR_MAXIMAL
 
     return angle_tir
+
+
+def calculer_score(nombre_millisecondes):
+    """
+    Calcule le score à partir du nombre de millisecondes écoulées, arrondi à la demi-seconde la plus proche.
+
+    :param nombre_millisecondes: Le nombre de millisecondes écoulées.
+    :return: Le score calculé arrondi à la demi-seconde la plus proche.
+    """
+    # Arrondir le nombre de millisecondes à la seconde inférieure la plus proche
+    nombre_millisecondes_arrondi = (nombre_millisecondes // 1000) * 1000
+
+    # Si les millisecondes restantes après la division par 1000 sont inférieures à 500,
+    # le score est simplement l'arrondi précédent.
+    if nombre_millisecondes % 1000 < 500:
+        return nombre_millisecondes_arrondi
+    # Sinon, le score est l'arrondi précédent plus 500.
+    else:
+        return nombre_millisecondes_arrondi + 500
+
+
+def lecture_fichier_score(fichier_score):
+    """
+    Lit le fichier contenant le meilleur score du jeu.
+
+    Si le fichier n'existe pas, il est créé avec un score initial de 0.
+    Si le fichier existe déjà, son contenu est lu et renvoyé.
+
+    :param fichier_score: Nom du fichier contenant le score du joueur.
+    :return: Le meilleur score lu à partir du fichier.
+    """
+    try:
+        # Tentative d'ouverture du fichier en mode "x+" (lecture/écriture, création s'il n'existe pas)
+        with open(fichier_score, "x+") as fichier:
+            # Si le fichier est créé, écrire un score initial de 0
+            fichier.write("0")
+            return 0
+    except FileExistsError:
+        # Si le fichier existe déjà
+
+        with open(fichier_score, "r") as fichier:
+            contenu_fichier = fichier.read()
+
+        with open(fichier_score, "w") as fichier:
+            try:
+                score = int(contenu_fichier)
+                fichier.write(contenu_fichier)
+                return score
+            except ValueError:
+                # En cas d'erreur de conversion, écrire un score initial de 0 et le renvoyer
+                fichier.write("0")
+                return 0
+
+
+def comparer_score(score_actuel, meilleur_score, fichier_score):
+    """
+    Compare le score actuel avec le meilleur score enregistré. Si le score actuel est inférieur ou égal au meilleur
+    score, retourne simplement le meilleur score. Sinon, met à jour le fichier de score avec le nouveau score actuel
+    et retourne ce dernier.
+
+    :param score_actuel: Le score actuel du joueur.
+    :param meilleur_score: Le meilleur score enregistré précédemment.
+    :param fichier_score: Le nom du fichier où enregistrer le score.
+    :return: Le meilleur score après comparaison.
+    """
+    if score_actuel <= meilleur_score:
+        return meilleur_score  # Retourne le meilleur score si le score actuel est inférieur ou égal
+    else:
+        with open(fichier_score, "w") as fichier:
+            fichier.write(str(score_actuel))  # Met à jour le fichier de score avec le nouveau score actuel
+        return score_actuel  # Retourne le nouveau score actuel après mise à jour
