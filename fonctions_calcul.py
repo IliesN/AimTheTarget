@@ -1,5 +1,7 @@
 import constantes as c
 import math
+import random
+import pygame
 
 
 def fonction_trajectoire_boulet(x, alpha, v0, g):
@@ -19,12 +21,22 @@ def fonction_trajectoire_boulet(x, alpha, v0, g):
 
 
 def fonction_trajectoire_meteorite(x, composants_meteorite):
+    """
+    Calcule la hauteur à laquelle se trouve une météorite à une position x donnée sur l'écran.
+
+    :param x: Position horizontale sur l'écran où la hauteur de la météorite est calculée (float).
+    :param composants_meteorite: Dictionnaire contenant les composants de la météorite, notamment ses coordonnées initiales (dict).
+
+    :return: Hauteur de la météorite à la position x spécifiée (float).
+    """
+    # Récupération de la position initiale en x de la météorite depuis le dictionnaire de composants
     position_x_initiale_meteorite = composants_meteorite["coordonnees_initiales"][0]
 
+    # Calcul du coefficient directeur de la trajectoire, basé sur la position initiale de la météorite et du personnage
     coefficient_directeur_traj = (c.PERSONNAGE_RECT.center[1] - c.POS_Y_METEORITES) / \
                                  (c.PERSONNAGE_RECT.center[0] - position_x_initiale_meteorite)
 
-    # Calculer la trajectoire de chaque meteorite allant de leur position initale vers le centre du personnage
+    # Calcul de la hauteur à laquelle la météorite se trouve à une position donnée 'x' sur l'écran
     hauteur = coefficient_directeur_traj * x + c.POS_Y_METEORITES -\
         coefficient_directeur_traj * position_x_initiale_meteorite
 
@@ -32,48 +44,64 @@ def fonction_trajectoire_meteorite(x, composants_meteorite):
 
 
 def creer_meteorite(liste_meteorites):
+    """
+    Crée une nouvelle météorite et l'ajoute à la liste des météorites existantes.
+
+    :param liste_meteorites: Liste des météorites existantes (list).
+    :return: Liste mise à jour des météorites, avec la nouvelle météorite ajoutée (list).
+    """
+    # Obtention des positions initiales en x de toutes les météorites existantes
     positions_x_initiales = []
     for composants_meteorite in liste_meteorites:
         positions_x_initiales.append(composants_meteorite["coordonnees_initiales"][0])
 
+    # Choix d'une position initiale x pour la nouvelle météorite, en évitant les positions déjà occupées
     position_x_meteorite = random.choice([
         position_x
         for position_x in range(c.INTERVALLE_POS_X_METEORITES[0], c.INTERVALLE_POS_X_METEORITES[1],
                                 c.DIMENSION_METEORITE)
-        if position_x not in positions_x_initiales  # Permet de faire apparaître des météorites là où elles ne sont
-        # encore jamais apparues
+        if position_x not in positions_x_initiales
     ])
 
+    # Création du rectangle pour la nouvelle météorite
     meteorite_rect = c.IMAGE_METEORITE.get_rect()
     meteorite_rect.x, meteorite_rect.y = (position_x_meteorite, c.POS_Y_METEORITES)
 
+    # Création du rectangle de collision pour la nouvelle météorite
     collision_meteorite_rect = pygame.Rect(0, 0, c.DIMENSION_METEORITE, c.DIMENSION_METEORITE)
     collision_meteorite_rect.center = meteorite_rect.center
 
+    # Ajout des informations de la nouvelle météorite à la liste des météorites
     liste_meteorites.append({
-        "coordonnees_initiales": (position_x_meteorite, c.POS_Y_METEORITES),  # Coordonnées initiales, servant à ne pas
-        # superposer les meteorites
-
-        "rect_meteorite": meteorite_rect,  # Rect correspondant à la météorite
-        "rect_zone_collision": collision_meteorite_rect,  # Rect correspondant à la zone de collision de la météorite
-
-        "coordonnees_actuelles": [position_x_meteorite, c.POS_Y_METEORITES],  # Coordonnées actuelles de la météorite
-    }
-    )
+        "coordonnees_initiales": (position_x_meteorite, c.POS_Y_METEORITES),
+        "rect_meteorite": meteorite_rect,
+        "rect_zone_collision": collision_meteorite_rect,
+        "coordonnees_actuelles": [position_x_meteorite, c.POS_Y_METEORITES],
+    })
 
     return liste_meteorites
 
 
 def actualiser_pos_meteorite(composants_meteorite):
+    """
+    Actualise la position de la météorite en fonction de sa trajectoire.
+
+    :param composants_meteorite: Dictionnaire contenant les composants de la météorite à actualiser (dict).
+    :return: Dictionnaire des composants de la météorite avec les positions actualisées (dict).
+    """
+    # Calcul des nouvelles positions x et y en fonction de la vitesse de déplacement de la météorite
     nouvelle_pos_x = composants_meteorite["coordonnees_actuelles"][0] + c.VITESSE_METEORITE
     nouvelle_pos_y = int(fonction_trajectoire_meteorite(nouvelle_pos_x, composants_meteorite))
 
+    # Mise à jour des coordonnées actuelles de la météorite
     composants_meteorite["coordonnees_actuelles"] = [nouvelle_pos_x, nouvelle_pos_y]
 
+    # Mise à jour du rectangle de la météorite avec les nouvelles positions
     meteorite_rect = composants_meteorite["rect_meteorite"]
     meteorite_rect.x, meteorite_rect.y = nouvelle_pos_x, nouvelle_pos_y
     composants_meteorite["rect_meteorite"] = meteorite_rect
 
+    # Mise à jour du rectangle de collision de la météorite avec les nouvelles positions
     zone_collision_rect = composants_meteorite["rect_zone_collision"]
     zone_collision_rect.center = meteorite_rect.center
     composants_meteorite["rect_zone_collision"] = zone_collision_rect
