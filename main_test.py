@@ -12,7 +12,7 @@ en_execution = True
 
 
 def initialiser_variables_jeu(choix_mode_facile=False, choix_niveau_actuel=0, choix_perdu=False, choix_gagne=False,
-                             choix_valeur_horodatage=0, choix_victoire=False):
+                              choix_valeur_horodatage=0, choix_victoire=False):
     """
     Initialise les variables du jeu avec les valeurs par défaut ou les valeurs spécifiées en argument.
 
