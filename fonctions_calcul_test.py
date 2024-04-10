@@ -25,7 +25,8 @@ def fonction_trajectoire_meteorite(x, composants_meteorite):
     Calcule la hauteur à laquelle se trouve une météorite à une position x donnée sur l'écran.
 
     :param x: Position horizontale sur l'écran où la hauteur de la météorite est calculée (float).
-    :param composants_meteorite: Dictionnaire contenant les composants de la météorite, notamment ses coordonnées initiales (dict).
+    :param composants_meteorite: Dictionnaire contenant les composants de la météorite,
+    notamment ses coordonnées initiales (dict).
 
     :return: Hauteur de la météorite à la position x spécifiée (float).
     """

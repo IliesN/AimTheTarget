@@ -109,7 +109,7 @@ def actualisation_jeu(position_x, position_y):
             initialiser_variables_jeu(choix_gagne=True)
         else:
             initialiser_variables_jeu(choix_mode_facile=mode_facile, choix_niveau_actuel=niveau_actuel,
-                                     choix_valeur_horodatage=pygame.time.get_ticks(), choix_victoire=True)
+                                      choix_valeur_horodatage=pygame.time.get_ticks(), choix_victoire=True)
 
     # Rotation de l'image du canon en fonction de la position de la souris
     image_canon_pivote = pygame.transform.rotate(c.IMAGE_CANON_SANS_ROUE,
@@ -204,7 +204,7 @@ def actualisation_jeu(position_x, position_y):
         # Création du rectangle englobant du boulet
         boulet_canon_rect = c.IMAGE_BOULET_CANON.get_rect()
         boulet_canon_rect.center = position_x_boulet + pos_x_centre_bouche_canon - c.DECALAGE_BOULET, \
-                                   pos_y_centre_bouche_canon - position_y_boulet
+            pos_y_centre_bouche_canon - position_y_boulet
 
         # Boucle de traitement de chaque météorite
         indice_composants_meteorite = 0
@@ -380,7 +380,8 @@ def affichage_accueil(position_x, position_y):
     if not regles_affichees:  # Si les règles ne sont pas affichées
         # Affichage du mode de jeu (facile ou normal) avec le texte et l'encoche associés
         if mode_facile:  # Si le mode de jeu est facile
-            fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, (c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y))  # Affichage de l'encoche verte
+            # Affichage de l'encoche verte
+            fenetre_jeu.blit(c.IMAGE_ENCOCHE_VERTE, (c.ENCOCHE_RECT.x, c.ENCOCHE_RECT.y))
             fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_ON, c.TEXTE_MODE_FACILE_RECT)  # Affichage du texte "facile"
         else:
             fenetre_jeu.blit(c.IMAGE_TEXTE_MODE_OFF, c.TEXTE_MODE_FACILE_RECT)  # Affichage du texte "normal"
