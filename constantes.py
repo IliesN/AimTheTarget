@@ -307,6 +307,8 @@ VITESSE_METEORITE = 3
 # Nombre de météorites pour chaque niveau
 NOMBRE_METEORITES_NIVEAU = [10, 15]
 
+DELAI_APPARITION_METEORITE = 1
+
 # Largeur du marqueur de trajectoire et positions début et fin
 LARGEUR_MARQUEUR_TRAJECTOIRE = 5
 POS_DEBUT_MARQUEUR_TRAJ = 10

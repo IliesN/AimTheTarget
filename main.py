@@ -82,7 +82,7 @@ def initialiser_variables_jeu(choix_mode_facile=False, choix_niveau_actuel=0, ch
 
     liste_meteorites = []
 
-    temps_jeu_ecoule = 0
+    temps_jeu_ecoule = -c.DELAI_APPARITION_METEORITE
     temps_millisecondes = 0
     temps_survie_jeu = choix_temps_survie_jeu
 
@@ -137,7 +137,7 @@ def actualisation_jeu(position_x, position_y):
 
     # Si le temps écoulé est un multiple de 2 et il n'y a pas de météorites apparues à ce moment
     # et le nombre de météorites actuelles est inférieur au nombre maximum de météorites pour le niveau
-    if temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule:
+    if temps_jeu_ecoule >= 0 and temps_jeu_ecoule % 2 == 0 and apparition_meteorite != temps_jeu_ecoule:
         if niveau_actuel < 2:
             if nombre_meteorites_actuel < c.NOMBRE_METEORITES_NIVEAU[niveau_actuel]:
                 # Création d'une nouvelle météorite
